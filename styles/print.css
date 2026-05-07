@@ -1,0 +1,50 @@
+/* ======================================================================
+   Print Mode — A4 一頁角色卡（中欄為主，左／右欄與互動 UI 隱藏）
+   Phase 2 會細化；目前先確保 Ctrl+P 不會印出 dev UI
+   ====================================================================== */
+
+@media print {
+  body {
+    background: white !important;
+    background-image: none !important;
+    color: var(--paper-900);
+  }
+
+  .titlebar,
+  .tabs,
+  .col.left,
+  .col.right,
+  .ritual-divider .chev,
+  .skp-foot,
+  .slot-add,
+  .dice-btn,
+  .style-pick,
+  .elem-extra .add,
+  .item-col .add,
+  .btn,
+  .btn-sm,
+  .btn-grid,
+  .export {
+    display: none !important;
+  }
+
+  .app {
+    display: block;
+  }
+
+  .col.center {
+    padding: 0;
+  }
+
+  .card {
+    box-shadow: none;
+    border: 1px solid var(--paper-300);
+    page-break-inside: avoid;
+  }
+
+  /* 簡化內部 textarea：用 border 顯示 */
+  textarea {
+    border: 1px solid var(--paper-300) !important;
+    page-break-inside: avoid;
+  }
+}

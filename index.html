@@ -1,0 +1,611 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>千夜月姫・角色帳</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;500;700;900&family=Noto+Sans+JP:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles/tokens.css">
+  <link rel="stylesheet" href="styles/main.css">
+  <link rel="stylesheet" href="styles/print.css" media="print">
+</head>
+<body>
+
+<!-- ================================================================
+     TITLE BAR
+     ================================================================ -->
+<div class="titlebar">
+  <div class="brand">
+    <div class="moon"></div>
+    <div>
+      <div class="name">千夜月姫</div>
+      <div class="sub">Character Sheet · Console</div>
+    </div>
+  </div>
+  <div class="title-spacer"></div>
+  <div class="title-meta">
+    <span><span class="dot"></span>SAVED 14:22</span>
+    <span>SESSION <b>#03</b></span>
+    <span>LOOP <b>04 / 07</b></span>
+  </div>
+</div>
+
+<!-- ================================================================
+     MULTI-CHARACTER TABS
+     ================================================================ -->
+<div class="tabs">
+  <div class="tab"><span class="seal">朱</span><span class="nm">朱鷺宮 縁</span><span class="lv">L4</span><span class="x">×</span></div>
+  <div class="tab active"><span class="seal">久</span><span class="nm">久遠寺 透</span><span class="lv">L6</span><span class="x">×</span></div>
+  <div class="tab"><span class="seal">霧</span><span class="nm">霧宮 茜</span><span class="lv">L3</span><span class="x">×</span></div>
+  <div class="tab"><span class="seal">無</span><span class="nm">名無し</span><span class="lv">L1</span><span class="x">×</span></div>
+  <div class="tab add">＋ 新規</div>
+  <div class="tabs-end">
+    <span><span class="kbd">⌘1-9</span> 切換</span>
+    <span><span class="kbd">⌘N</span> 新規</span>
+    <span><span class="kbd">⌘P</span> 列印</span>
+  </div>
+</div>
+
+<!-- ================================================================
+     APP GRID — 3 columns
+     ================================================================ -->
+<div class="app">
+
+  <!-- ============================================================
+       LEFT: SKILL PICKER
+       ============================================================ -->
+  <aside class="col left">
+    <div class="sec-label">
+      <span class="glyph">特技</span><span>skill picker</span><span class="rule"></span><span class="ord">4 / 4</span>
+    </div>
+    <div class="skp-search"><input placeholder="検索 / 篩選 — 名稱・效果・分類"></div>
+    <div class="skp-filters">
+      <span class="skp-chip on">已習得 4</span>
+      <span class="skp-chip">古神道 12</span>
+      <span class="skp-chip">魔術師 9</span>
+      <span class="skp-chip">共通 28</span>
+      <span class="skp-chip">主動</span>
+      <span class="skp-chip">反應</span>
+      <span class="skp-chip">常時</span>
+    </div>
+    <div class="skp-list">
+      <div class="skp-group-h">古神道 — 主級別 <span class="ct">12</span></div>
+      <div class="skp-item selected"><div class="check on"></div><div><div class="nm">月讀の眼</div><div class="meta">常時 · Lv1+</div></div><div class="skp-cost">— —</div></div>
+      <div class="skp-item"><div class="check on"></div><div><div class="nm">穢れ祓い</div><div class="meta">主動 · 理智5+</div></div><div class="skp-cost">TP 4</div></div>
+      <div class="skp-item"><div class="check on"></div><div><div class="nm">繰り返しの記憶</div><div class="meta">反應 · 記憶ON</div></div><div class="skp-cost">TP 6</div></div>
+      <div class="skp-item"><div class="check on"></div><div><div class="nm">鳥居の境界</div><div class="meta">主動 · Lv4+</div></div><div class="skp-cost">TP 8 · HP 2</div></div>
+      <div class="skp-item"><div class="check"></div><div><div class="nm">護符投擲</div><div class="meta">主動 · Lv1+</div></div><div class="skp-cost">TP 3</div></div>
+      <div class="skp-item"><div class="check"></div><div><div class="nm">夢見の素養</div><div class="meta">常時 · 意志4+</div></div><div class="skp-cost">— —</div></div>
+      <div class="skp-group-h">魔術師 — 副級別 <span class="ct">9</span></div>
+      <div class="skp-item"><div class="check"></div><div><div class="nm">魔力封印</div><div class="meta">反應 · 理智6+</div></div><div class="skp-cost">TP 5</div></div>
+      <div class="skp-item"><div class="check"></div><div><div class="nm">術式変換</div><div class="meta">主動 · 共通</div></div><div class="skp-cost">TP 4</div></div>
+      <div class="skp-group-h">共通 — 全職 <span class="ct">28</span></div>
+      <div class="skp-item"><div class="check"></div><div><div class="nm">気合い溜め</div><div class="meta">主動 · 共通</div></div><div class="skp-cost">TP 0</div></div>
+      <div class="skp-item"><div class="check"></div><div><div class="nm">致命の見切り</div><div class="meta">反應 · 知覺6+</div></div><div class="skp-cost">TP 4</div></div>
+    </div>
+    <div class="skp-foot">
+      <span>選擇上限　<b>4 / 4</b>　主：古神道 Lv4</span>
+      <span>+ 自訂</span>
+    </div>
+  </aside>
+
+  <!-- ============================================================
+       CENTER: CHARACTER CARD
+       ============================================================ -->
+  <main class="col center">
+    <div class="sec-label">
+      <span class="glyph">本紙</span><span>character sheet</span><span class="rule"></span><span class="ord">02 / 04 · 久遠寺 透</span>
+    </div>
+
+    <article class="card">
+      <span class="watermark">PC・02・KUONJI・TOORU・古神道・LV6</span>
+
+      <!-- HEAD: 姓名 / 讀み / 玩家 -->
+      <div class="card-head">
+        <div>
+          <label class="pf-label">姓名 — name</label>
+          <input class="pf-input big" value="久遠寺 透">
+        </div>
+        <div>
+          <label class="pf-label">讀み — yomi</label>
+          <input class="pf-input" value="クオンジ・トオル">
+        </div>
+        <div>
+          <label class="pf-label">玩家名稱 — player</label>
+          <input class="pf-input" value="あおい">
+        </div>
+      </div>
+
+      <!-- PERSONAL DATA -->
+      <div class="personal">
+        <div class="pf span2">
+          <label class="pf-label">種族</label>
+          <input class="pf-input" value="人間">
+        </div>
+        <div class="pf span4">
+          <label class="pf-label">地域社會</label>
+          <input class="pf-input" value="月讀神社・分家／私立黎明高等学院 二年">
+        </div>
+        <div class="pf">
+          <label class="pf-label">年齢</label>
+          <input class="pf-input" value="17">
+        </div>
+        <div class="pf">
+          <label class="pf-label">性別</label>
+          <input class="pf-input" value="男">
+        </div>
+        <div class="pf span4">
+          <label class="pf-label">外貌（髪／瞳／肌／身）</label>
+          <input class="pf-input" value="銀／緋／淡／178cm">
+        </div>
+        <div class="pf span2">
+          <label class="pf-label">角色等級</label>
+          <input class="pf-input" value="6">
+        </div>
+        <div class="pf span2">
+          <label class="pf-label">剩餘經驗點</label>
+          <input class="pf-input" value="3">
+        </div>
+        <div class="pf span2">
+          <label class="pf-label">初始級別 / 初始等級</label>
+          <input class="pf-input" value="古神道 / 4">
+        </div>
+      </div>
+
+      <!-- CLASS SLOTS — multi-class (1-4) -->
+      <div class="row-class">
+        <div class="head-line">
+          <span class="lbl">級別 — class · 多重</span>
+          <span class="total">合計 <b>6</b> Lv　·　槽 <b>2 / 4</b></span>
+        </div>
+        <div class="grid2">
+          <div>
+            <div class="slot-stack">
+              <div class="slot primary">
+                <div class="ord">主</div>
+                <div class="pf-select">
+                  <select>
+                    <optgroup label="基本職">
+                      <option>狩人</option><option>劍士</option><option>狩獵者</option>
+                      <option>代行者</option><option>武鬥家</option><option>魔術師</option>
+                      <option>超能力者</option>
+                    </optgroup>
+                    <optgroup label="進階職">
+                      <option selected>古神道</option><option>異端</option><option>左道</option>
+                      <option>策士</option><option>忍者</option><option>無名劍</option>
+                      <option>風水士</option>
+                    </optgroup>
+                  </select>
+                  <div class="tag-line"><span class="adv">進階</span> · ADVANCED · RITUALIST</div>
+                </div>
+                <div class="lvl"><button>−</button><input value="4"><button>＋</button></div>
+                <button class="rm">×</button>
+              </div>
+              <div class="slot">
+                <div class="ord">副</div>
+                <div class="pf-select">
+                  <select>
+                    <optgroup label="基本職">
+                      <option>狩人</option><option>劍士</option><option>狩獵者</option>
+                      <option>代行者</option><option>武鬥家</option><option selected>魔術師</option>
+                      <option>超能力者</option>
+                    </optgroup>
+                    <optgroup label="進階職">
+                      <option>古神道</option><option>異端</option><option>左道</option>
+                      <option>策士</option><option>忍者</option><option>無名劍</option>
+                      <option>風水士</option>
+                    </optgroup>
+                  </select>
+                  <div class="tag-line"><span class="basic">基本</span> · BASIC · CASTER</div>
+                </div>
+                <div class="lvl"><button>−</button><input value="2"><button>＋</button></div>
+                <button class="rm">×</button>
+              </div>
+            </div>
+            <button class="slot-add">＋ 加入級別<span class="hint">最多 4 槽　·　特殊狀況</span></button>
+          </div>
+          <div class="class-side">
+            <button class="dice-btn"><span class="die"></span>擲骰起手 1D6+3</button>
+            <div class="desc">
+              · 一般 1〜3 槽<br>
+              · 4 槽僅限特殊劇本<br>
+              · 主級別決定特技池<br>
+              · 等級合計用於派生
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 風格 — 連動式（風格決定 分類／背反律／代償／獲得感情） -->
+      <div class="style-block">
+        <div class="style-head">
+          <span class="lbl">風格 — style</span>
+          <div class="style-chips">
+            <span class="style-tag primary"><span class="ord">主</span>月讀の巫祝<span class="x">×</span></span>
+            <span class="style-tag"><span class="ord">02</span>夢渡り<span class="x">×</span></span>
+            <select class="style-pick">
+              <option value="" selected disabled>＋ 追加風格</option>
+              <optgroup label="神祕">
+                <option>境界守護者</option><option>古代の継承者</option><option>運命に抗う者</option>
+              </optgroup>
+              <optgroup label="戰士">
+                <option>剣鬼</option><option>狩人</option><option>復讐者</option><option>守護騎士</option>
+              </optgroup>
+              <optgroup label="社會">
+                <option>調停者</option><option>策謀家</option><option>放浪者</option><option>記録者</option>
+              </optgroup>
+              <optgroup label="情念">
+                <option>愛に殉ずる者</option><option>仇に生きる者</option><option>誓いに縛られし者</option>
+              </optgroup>
+            </select>
+          </div>
+        </div>
+
+        <div class="style-derived">
+          <div class="h">風格</div>
+          <div class="h">分類</div>
+          <div class="h">背反律</div>
+          <div class="h">代償</div>
+          <div class="h">獲得感情</div>
+
+          <div class="style-row primary">
+            <div class="cell style-name"><span class="marker"></span>月讀の巫祝</div>
+            <div class="cell">儀典・封印</div>
+            <div class="cell">不可離宮三日</div>
+            <div class="cell">記憶の一片</div>
+            <div class="cell">憧憬</div>
+          </div>
+
+          <div class="style-row">
+            <div class="cell style-name"><span class="marker"></span>夢渡り</div>
+            <div class="cell">夢幻・移動</div>
+            <div class="cell">夜中三刻に眠れず</div>
+            <div class="cell">体力 −1（一場面）</div>
+            <div class="cell">郷愁</div>
+          </div>
+
+          <div class="style-row total-row">
+            <div class="cell">合計／統合</div>
+            <div class="cell">
+              <span class="merge-tag shu">儀典・封印</span>
+              <span class="merge-tag">夢幻・移動</span>
+            </div>
+            <div class="cell">
+              <span class="merge-tag shu">不可離宮三日</span>
+              <span class="merge-tag">夜中三刻に眠れず</span>
+            </div>
+            <div class="cell">
+              <span class="merge-tag shu">記憶の一片</span>
+              <span class="merge-tag">体力 −1</span>
+            </div>
+            <div class="cell">
+              <span class="merge-tag shu">憧憬</span>
+              <span class="merge-tag">郷愁</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="style-hint">
+          <span><b>連動：</b>風格決定其下四欄；變更或移除風格時自動同步。</span>
+          <span><b>主風格：</b>朱色標記，於同類條件中優先生效。</span>
+          <span><b>合計：</b>所有條件同時對角色生效（及其代價）。</span>
+        </div>
+      </div>
+
+      <!-- ATTRIBUTES — sliders + 6-col breakdown -->
+      <div class="ritual-divider">
+        <span class="glyph">四</span><span>attributes ・ 能力値</span>
+        <span class="badge">合計／分解</span>
+        <span class="chev">▾</span>
+      </div>
+
+      <div class="attrs">
+        <div class="attr">
+          <div class="nm">體力<small>TAIRYOKU</small></div>
+          <div class="slider"><span class="track"></span><span class="ticks"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span><span class="fill" style="width:65%"></span><span class="thumb shu" style="left:65%"></span></div>
+          <div class="num">7<small>/10</small></div>
+          <div class="breakdown">
+            <span>基礎 <b>4</b></span>
+            <span>級1 <b class="pos">+2</b></span>
+            <span>級2 <b class="pos">+1</b></span>
+            <span>級3 <b>—</b></span>
+            <span>特殊 <b>—</b></span>
+          </div>
+        </div>
+        <div class="attr">
+          <div class="nm">知覺<small>CHIKAKU</small></div>
+          <div class="slider"><span class="track"></span><span class="ticks"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span><span class="fill" style="width:45%"></span><span class="thumb" style="left:45%"></span></div>
+          <div class="num">5<small>/10</small></div>
+          <div class="breakdown">
+            <span>基礎 <b>3</b></span>
+            <span>級1 <b class="pos">+1</b></span>
+            <span>級2 <b class="pos">+1</b></span>
+            <span>級3 <b>—</b></span>
+            <span>特殊 <b>—</b></span>
+          </div>
+        </div>
+        <div class="attr">
+          <div class="nm">理智<small>RICHI</small></div>
+          <div class="slider"><span class="track"></span><span class="ticks"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span><span class="fill" style="width:75%"></span><span class="thumb shu" style="left:75%"></span></div>
+          <div class="num">8<small>/10</small></div>
+          <div class="breakdown">
+            <span>基礎 <b>5</b></span>
+            <span>級1 <b class="pos">+2</b></span>
+            <span>級2 <b>—</b></span>
+            <span>級3 <b>—</b></span>
+            <span>特殊 <b class="pos">+1</b></span>
+          </div>
+        </div>
+        <div class="attr">
+          <div class="nm">意志<small>ISHI</small></div>
+          <div class="slider"><span class="track"></span><span class="ticks"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span><span class="fill" style="width:55%"></span><span class="thumb" style="left:55%"></span></div>
+          <div class="num">6<small>/10</small></div>
+          <div class="breakdown">
+            <span>基礎 <b>4</b></span>
+            <span>級1 <b class="pos">+1</b></span>
+            <span>級2 <b class="pos">+1</b></span>
+            <span>級3 <b>—</b></span>
+            <span>特殊 <b>—</b></span>
+          </div>
+        </div>
+      </div>
+
+      <table class="stat-table">
+        <thead>
+          <tr>
+            <th>能力名</th><th>基礎</th><th>級1修正</th><th>級2修正</th><th>級3修正</th><th>特殊</th><th>合計</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>體力</td><td>4</td><td>+2</td><td>+1</td><td>—</td><td>—</td><td class="sum">7</td></tr>
+          <tr><td>知覺</td><td>3</td><td>+1</td><td>+1</td><td>—</td><td>—</td><td class="sum">5</td></tr>
+          <tr><td>理智</td><td>5</td><td>+2</td><td>—</td><td>—</td><td>+1</td><td class="sum">8</td></tr>
+          <tr><td>意志</td><td>4</td><td>+1</td><td>+1</td><td>—</td><td>—</td><td class="sum">6</td></tr>
+        </tbody>
+      </table>
+
+      <!-- ELEMENTS — 五大 + 例外 -->
+      <div class="ritual-divider">
+        <span class="glyph">五</span><span>elements ・ 屬性値</span>
+        <span class="chev">▾</span>
+      </div>
+      <div class="elem-row">
+        <div class="label">五大</div>
+        <div class="elem"><span class="gl">地</span><span class="v">2</span></div>
+        <div class="elem"><span class="gl">水</span><span class="v">3</span></div>
+        <div class="elem active"><span class="gl">火</span><span class="v">5</span></div>
+        <div class="elem"><span class="gl">風</span><span class="v">1</span></div>
+        <div class="elem"><span class="gl">空</span><span class="v">4</span></div>
+      </div>
+      <div class="elem-extra">
+        <div class="label">例外</div>
+        <div class="chips">
+          <span class="elem-x"><span class="nm">月</span><span class="v">3</span><span class="x">×</span></span>
+          <span class="elem-x"><span class="nm">影</span><span class="v">2</span><span class="x">×</span></span>
+          <span class="elem-x"><span class="nm">血</span><span class="v">1</span><span class="x">×</span></span>
+          <button class="add">＋ 自定義屬性</button>
+        </div>
+        <span class="hint">劇本／流派專用屬性</span>
+      </div>
+
+      <!-- SKILL DETAIL -->
+      <div class="ritual-divider">
+        <span class="glyph">特</span><span>technique ・ 特技</span>
+        <span class="badge">已選 4 / 4</span>
+        <span class="chev">▾</span>
+      </div>
+
+      <div class="equipped-strip">
+        <span class="eq-chip on">月讀の眼 <span class="x">●</span></span>
+        <span class="eq-chip">穢れ祓い</span>
+        <span class="eq-chip">繰り返しの記憶</span>
+        <span class="eq-chip">鳥居の境界</span>
+      </div>
+
+      <div class="sk-detail">
+        <span class="pin">SELECTED</span>
+        <div class="head">
+          <div class="nm">月讀の眼<span class="yomi">TSUKUYOMI NO ME</span></div>
+          <div class="badges">
+            <span class="sk-badge shu">常時</span>
+            <span class="sk-badge">古神道 Lv1+</span>
+          </div>
+        </div>
+        <div class="grid">
+          <div class="sk-cell"><div class="k">分類</div><div class="v">常時 / passive</div></div>
+          <div class="sk-cell"><div class="k">代價</div><div class="v"><span class="shu">— —</span> 無</div></div>
+          <div class="sk-cell"><div class="k">取得限制</div><div class="v">古神道 Lv1+</div></div>
+          <div class="sk-cell"><div class="k">情緒獎勵</div><div class="v"><span class="shu">憧憬</span></div></div>
+        </div>
+        <div class="sk-effect">
+          場面開始時，可指定一名 NPC，記錄其所在區位。本場面內，對該對象進行的所有判定 +1。
+        </div>
+
+        <div class="sk-advanced">
+          <div class="sk-adv-block shu">
+            <div class="k">二段條件</div>
+            <div class="v">指定對象於本場面內因任一判定失敗而受傷時觸發。</div>
+          </div>
+          <div class="sk-adv-block gold">
+            <div class="k">追加效果</div>
+            <div class="v">本場面結束前，對該對象之精神判定改為自動成功，至多 1 回。</div>
+          </div>
+        </div>
+        <div class="sk-emo">
+          <span class="lbl">情緒獎勵</span>
+          <span class="pill-g">憧憬 +1</span>
+          <span class="desc">·　符合風格時，獲得 1 點羈絆／本場面</span>
+        </div>
+      </div>
+
+      <!-- ITEMS — 3 tiers -->
+      <div class="ritual-divider">
+        <span class="glyph">具</span><span>items ・ 所持道具</span>
+        <span class="chev">▾</span>
+      </div>
+      <div class="items-grid">
+        <div class="item-col">
+          <div class="h"><span class="name">道具</span><span class="tier">等級 1〜3</span></div>
+          <ul>
+            <li><span class="dot"></span>御守 (1)</li>
+            <li><span class="dot"></span>燈油</li>
+            <li><span class="dot"></span>白布 ×3</li>
+            <li><span class="dot"></span>携帯食</li>
+          </ul>
+          <button class="add">＋ 添加</button>
+        </div>
+        <div class="item-col">
+          <div class="h"><span class="name">道具</span><span class="tier">等級 4〜6</span></div>
+          <ul>
+            <li><span class="dot"></span>退魔の符 ×5 (5)</li>
+            <li><span class="dot"></span>銀製鏡</li>
+            <li class="empty">—— 空欄 ——</li>
+          </ul>
+          <button class="add">＋ 添加</button>
+        </div>
+        <div class="item-col">
+          <div class="h"><span class="name">道具</span><span class="tier">等級 7〜9</span></div>
+          <ul>
+            <li><span class="dot"></span>月讀神鏡 (8)</li>
+            <li class="empty">—— 空欄 ——</li>
+            <li class="empty">—— 空欄 ——</li>
+          </ul>
+          <button class="add">＋ 添加</button>
+        </div>
+      </div>
+
+      <!-- RELATIONSHIPS -->
+      <div class="ritual-divider">
+        <span class="glyph">縁</span><span>relationships ・ 角色關係表</span>
+        <span class="chev">▾</span>
+      </div>
+      <table class="rel-table">
+        <thead>
+          <tr><th style="width:140px">角色名</th><th style="width:120px">感情</th><th style="width:80px">羈絆値</th><th>備註</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="nm">朱鷺宮 縁</td>
+            <td><span class="rel-emotion"><span class="tone pure"></span>信賴</span></td>
+            <td><span class="rel-bond pos">+2</span></td>
+            <td>同道館の幼馴染。剣の修行を共にした。</td>
+          </tr>
+          <tr>
+            <td class="nm">霧宮 茜</td>
+            <td><span class="rel-emotion"><span class="tone crazy"></span>獨占欲</span></td>
+            <td><span class="rel-bond neg">+4</span></td>
+            <td>三回前のループで失った人。今回は守る。</td>
+          </tr>
+          <tr>
+            <td class="nm">五十嵐 静江（NPC）</td>
+            <td><span class="rel-emotion"><span class="tone pure"></span>仰慕</span></td>
+            <td><span class="rel-bond pos">+2</span></td>
+            <td>分家の祖母。月讀の作法を教えた人。</td>
+          </tr>
+          <tr>
+            <td class="nm">名無しの少女（NPC）</td>
+            <td><span class="rel-emotion"><span class="tone crazy"></span>不安</span></td>
+            <td><span class="rel-bond neg">+4</span></td>
+            <td>夜の境内で見た。ループ毎に違う場所で会う。</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="rel-foot">
+        <span>+ 追加關係</span>
+        <span>羈絆值合計　<b>12</b>　·　潔淨 4　/　瘋狂 8</span>
+      </div>
+
+      <!-- CHARACTER SETTING -->
+      <div class="ritual-divider">
+        <span class="glyph">設</span><span>character setting ・ 角色設定</span>
+        <span class="chev">▾</span>
+      </div>
+      <div class="setting-grid">
+        <div class="setting-block">
+          <div class="k">背景・出自</div>
+          <textarea>分家の生まれ。母方の祖母から月讀の作法を受け継ぎ、十六で正式な巫覡となった。表向きは私立高校の二年生だが、満月の夜だけ社務所に戻る。</textarea>
+        </div>
+        <div class="setting-block">
+          <div class="k">性格・癖</div>
+          <textarea>普段は穏やかで言葉数が少ない。ループ中の記憶が混ざるとき、無意識に左手で右の袖口を握る癖。茶を淹れるのが上手い。</textarea>
+        </div>
+        <div class="setting-block">
+          <div class="k">来歴・劇本連動</div>
+          <textarea>三回前のループで「霧宮 茜」の死を看取った。記憶は断片的だが、彼女の最期の言葉は覚えている。</textarea>
+        </div>
+        <div class="setting-block">
+          <div class="k">自由メモ</div>
+          <textarea>・神鏡は触れると冷たい。
+・夢の中で名無しの少女に呼ばれることが増えた。
+・代償の「記憶の一片」は、術を使うたび少しずつ削れていく感覚。</textarea>
+        </div>
+      </div>
+    </article>
+  </main>
+
+  <!-- ============================================================
+       RIGHT: DERIVED DASHBOARD
+       ============================================================ -->
+  <aside class="col right">
+    <div class="sec-label">
+      <span class="glyph">派生</span><span>derived</span><span class="rule"></span><span class="ord">live</span>
+    </div>
+    <div class="right-head">
+      <h2>戰闘値</h2>
+      <span class="auto"><span class="pulse"></span>自動算定</span>
+    </div>
+
+    <div class="vital">
+      <div class="vital-name"><span>HP — 生命</span><span class="formula">体力×6 + Lv×2</span></div>
+      <div class="vital-num">
+        <span class="big">54</span>
+        <span class="max">/ 54 MAX</span>
+      </div>
+      <div class="vital-bar"><i style="width:100%; background:linear-gradient(90deg,var(--shu),var(--gold))"></i></div>
+    </div>
+    <div class="vital">
+      <div class="vital-name"><span>TP — 集中</span><span class="formula">理智×4 + 意志×2 + Lv</span></div>
+      <div class="vital-num tp">
+        <span class="big">50</span>
+        <span class="max">/ 50 MAX</span>
+      </div>
+      <div class="vital-bar"><i style="width:88%; background:linear-gradient(90deg,#2a3a52,#7faed4)"></i></div>
+    </div>
+
+    <div class="combat-grid">
+      <div class="combat"><div class="lbl"><span>近戰</span><span class="roll">+1d</span></div><div class="v">11</div><div class="breakdown">体7 + Lv/2 + 火1</div></div>
+      <div class="combat"><div class="lbl"><span>射擊</span><span class="roll">+1d</span></div><div class="v">9</div><div class="breakdown">知5 + Lv/2 + 風1</div></div>
+      <div class="combat"><div class="lbl"><span>精神</span><span class="roll">+1d</span></div><div class="v">14</div><div class="breakdown">理8 + Lv/2 + 空3</div></div>
+      <div class="combat"><div class="lbl"><span>行動</span><span class="roll">+1d</span></div><div class="v">10</div><div class="breakdown">意6 + Lv/2 + 風1</div></div>
+    </div>
+
+    <div class="defense"><span class="lbl">防禦點</span><span class="v">13</span></div>
+
+    <div class="bond-summary">
+      <div>
+        <div class="lbl">羈絆値</div>
+        <div class="note">潔淨 4　·　瘋狂 8</div>
+      </div>
+      <div class="v">12</div>
+    </div>
+
+    <div class="export">
+      <button class="btn primary">⎙ 匯出 / 列印</button>
+      <div class="btn-grid" style="margin-top:8px">
+        <button class="btn-sm">Markdown</button>
+        <button class="btn-sm">BBCode</button>
+        <button class="btn-sm">列印 A4</button>
+        <button class="btn-sm">ccfolia</button>
+      </div>
+      <div class="export-meta">
+        最後匯出 14:08 · ccfolia.json<br>
+        資料保存於 localStorage · 不上傳
+      </div>
+    </div>
+  </aside>
+</div>
+
+</body>
+</html>
