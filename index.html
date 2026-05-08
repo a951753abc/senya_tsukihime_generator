@@ -13,14 +13,37 @@
   <style>
     /* 微調：屬性 6 欄表的編輯 input 樣式 */
     .stat-table input.cell-inp {
-      background: transparent; border: 0; outline: none;
+      background: transparent; outline: none;
       font: inherit; width: 36px; text-align: right;
       color: inherit;
+      border: 0;
+      border-bottom: 1px dotted var(--paper-300);
+      border-radius: 2px;
+      padding: 1px 2px;
+      cursor: text;
+    }
+    .stat-table input.cell-inp:hover {
+      background: rgba(176, 56, 43, .04);
+      border-bottom-color: var(--shu);
     }
     .stat-table input.cell-inp:focus {
       background: rgba(176, 56, 43, .08);
-      border-radius: 2px;
+      border-bottom: 1px solid var(--shu);
     }
+    .stat-table input.cell-inp.auto {
+      color: var(--paper-700);
+      border-bottom-style: dashed;
+      border-bottom-color: var(--gold);
+    }
+    .stat-table input.cell-inp.auto:hover {
+      background: rgba(200, 169, 106, .08);
+    }
+    .stat-table-hint {
+      margin: var(--s-3) 0 var(--s-2);
+      font-family: var(--f-mono); font-size: 10px;
+      color: var(--paper-700); letter-spacing: .05em; line-height: 1.5;
+    }
+    .stat-table-hint b { color: var(--paper-900); font-weight: 700; letter-spacing: .1em; }
     /* 級別槽 add 鈕 disabled */
     .slot-add[disabled] { cursor: not-allowed; }
     /* tabs-list 用 display:contents 維持原本 flex layout */
@@ -196,6 +219,6 @@
   </aside>
 </div>
 
-<script type="module" src="js/main.js"></script>
+<script type="module" src="js/main.js?v=20260508a"></script>
 </body>
 </html>
