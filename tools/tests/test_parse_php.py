@@ -46,6 +46,25 @@ def test_kenshi_initial_skills_and_levelup_rule():
     assert isinstance(r["levelUpRule"], str)
     assert "等級" in r["levelUpRule"] or "選" in r["levelUpRule"]
 
+def test_kenshi_initial_note():
+    r = parse_level_php(FIXTURES / "kenshi.php", level_id="kenshi")
+    # "初期取得：得到「段位」、「流派」。" → "得到「段位」、「流派」。"
+    assert "段位" in r["initialNote"]
+    assert "流派" in r["initialNote"]
+    assert not r["initialNote"].startswith("初期取得")
+
+def test_karyu_initial_note_captures_pick_two():
+    """狩人沒有具名技能，但 initialNote 應該含「任兩個」"""
+    r = parse_level_php(FIXTURES / "karyu.php", level_id="karyu")
+    assert r["initialSkills"] == []
+    assert "任兩個" in r["initialNote"] or "兩個" in r["initialNote"]
+    assert not r["initialNote"].startswith("初期取得")
+
+def test_tyouno_initial_note_says_pick_one():
+    """超能力者：『從「一代變異」「血脈」中選一』— note 應有「選一」"""
+    r = parse_level_php(FIXTURES / "tyouno.php", level_id="tyouno")
+    assert "選一" in r["initialNote"]
+
 def test_kenshi_modifier_table_shape():
     r = parse_level_php(FIXTURES / "kenshi.php", level_id="kenshi")
     table = r["modifierTable"]

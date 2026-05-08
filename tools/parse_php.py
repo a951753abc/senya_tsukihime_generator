@@ -80,22 +80,31 @@ def _parse_base_abilities(soup: BeautifulSoup) -> dict:
     return dict(zip(ABILITY_ORDER, values))
 
 
-def _parse_initial_skills_and_rule(soup: BeautifulSoup) -> tuple[list[str], str]:
+def _parse_initial_skills_and_rule(soup: BeautifulSoup) -> tuple[list[str], str, str]:
+    """回傳 (initial_skills, level_up_rule, initial_note)
+
+    - initial_skills：從「...」括號抽出的具體技能名（可能為空，例如「任兩個喜歡的特技」）
+    - level_up_rule：升級規則文字（rank3 第二個 h2，去掉 "升級："）
+    - initial_note：rank3 第一個 h2 的原文（去掉 "初期取得：" 前綴；含「選一」「任兩個」等說明）
+    """
     anchor = soup.find(id="description_rank3")
     if not anchor:
-        return [], ""
+        return [], "", ""
     h2s = anchor.find_all_next("h2", limit=2)
     initial_skills: list[str] = []
     level_up_rule = ""
+    initial_note = ""
     if h2s:
         initial_text = h2s[0].get_text(" ", strip=True)
         # 抽「...」內的特技名
         for m in re.finditer(r"「([^」]+)」", initial_text):
             initial_skills.append(m.group(1))
+        # 去掉 "初期取得：" 前綴（可能重複出現，全清掉）
+        initial_note = re.sub(r"初期取得\s*[:：]\s*", "", initial_text).strip()
     if len(h2s) >= 2:
         rule_text = h2s[1].get_text(" ", strip=True)
         level_up_rule = re.sub(r"^升級\s*[:：]\s*", "", rule_text).strip()
-    return initial_skills, level_up_rule
+    return initial_skills, level_up_rule, initial_note
 
 
 def _parse_modifier_table(soup: BeautifulSoup) -> dict:
@@ -206,7 +215,7 @@ def parse_level_php(path: Path | str, level_id: str) -> dict:
     html = Path(path).read_text(encoding="utf-8")
     soup = BeautifulSoup(html, "html.parser")
     name = _parse_name_from_title(soup, level_id)
-    initial_skills, level_up_rule = _parse_initial_skills_and_rule(soup)
+    initial_skills, level_up_rule, initial_note = _parse_initial_skills_and_rule(soup)
     return {
         "id": level_id,
         "name": name,
@@ -214,6 +223,7 @@ def parse_level_php(path: Path | str, level_id: str) -> dict:
         "description": _parse_description(soup),
         "baseAbilities": _parse_base_abilities(soup),
         "initialSkills": initial_skills,
+        "initialNote": initial_note,
         "levelUpRule": level_up_rule,
         "modifierTable": _parse_modifier_table(soup),
         "skills": {

@@ -12,6 +12,7 @@
   "initialSkills": [
     "人外血脈"
   ],
+  "initialNote": "得到「人外血脈」，然後再選擇一個自己喜歡的特技。",
   "levelUpRule": "等級上升之時、選取一個喜歡的特技。5等、10等時，可以額外再取得一個特技。",
   "modifierTable": {
     "melee": [

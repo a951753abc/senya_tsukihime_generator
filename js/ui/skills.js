@@ -75,6 +75,18 @@ export async function mountSkills({ pickerEl, equippedEl, detailEl }, store) {
     const groups = await buildGroups(card);
     const totalEquipped = card?.skills?.equipped?.length || 0;
     const primaryName = card?.classes?.[0]?.name || '無';
+    // 蒐集每個級別的 initialNote
+    const initialNotes = [];
+    if (card?.classes) {
+      for (const cls of card.classes) {
+        try {
+          const data = await getLevel(cls.id);
+          if (data.initialNote) {
+            initialNotes.push({ name: data.name || cls.name, note: data.initialNote });
+          }
+        } catch {}
+      }
+    }
 
     let listHtml = '';
     let totalVisible = 0;
@@ -125,6 +137,16 @@ export async function mountSkills({ pickerEl, equippedEl, detailEl }, store) {
       </div>
       <div class="skp-filters">${filterChips}</div>
       <div class="skp-list">${listHtml}</div>
+      ${initialNotes.length > 0 ? `
+        <div style="border-top:1px solid var(--ink-500); padding:var(--s-3) 0 0; margin-top:var(--s-3); font-family:var(--f-mono); font-size:10px; color:var(--ink-300); line-height:1.5">
+          ${initialNotes.map(n => `
+            <div style="margin-bottom:4px">
+              <span style="color:var(--gold);font-family:var(--f-heading);letter-spacing:.2em">初期 · ${escapeHtml(n.name)}</span><br>
+              <span style="color:var(--ink-200)">${escapeHtml(n.note)}</span>
+            </div>
+          `).join('')}
+        </div>
+      ` : ''}
       <div class="skp-foot">
         <span>已習得　<b>${totalEquipped}</b>　·　主：${escapeHtml(primaryName)}</span>
       </div>

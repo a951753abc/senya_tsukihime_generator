@@ -10,6 +10,7 @@
     "will": 5
   },
   "initialSkills": [],
+  "initialNote": "選擇兩個自己喜歡的特技。",
   "levelUpRule": "等級上升之時、選取一個喜歡的特技。3、6、9級，可以取得兩個特技。",
   "modifierTable": {
     "melee": [
