@@ -117,38 +117,47 @@ describe('deriveAll — v3 設計範例（久遠寺 透 LV6 古神道+魔術師�
     expect(deriveAll(makeChar()).tp).toBe(50);
   });
 
-  test('近戰 = 体7 + Lv/2(3) + 火5 = 15', () => {
-    // v3 design demo says 11 with 火1 — 但範例有改 elements.fire=5 所以是 15。把 fire=1 才得 11
+  test('能力紅利 = ⌊合計/3⌋', () => {
+    const d = deriveAll(makeChar());
+    expect(d.bonus).toEqual({
+      physical: 2,    // ⌊7/3⌋
+      perception: 1,  // ⌊5/3⌋
+      reason: 2,      // ⌊8/3⌋
+      will: 2,        // ⌊6/3⌋
+    });
+  });
+
+  test('近戰 = 紅利_體(2) + 紅利_知(1) + Lv/2(3) + 火 — fire=1 得 7', () => {
     const c = makeChar();
     c.stats.elements.fire = 1;
-    expect(deriveAll(c).combat.melee).toBe(11);
+    expect(deriveAll(c).combat.melee).toBe(2 + 1 + 3 + 1);
   });
 
-  test('射擊 = 知5 + Lv/2(3) + 風1 = 9', () => {
+  test('射擊 = 紅利_知(1) + 紅利_理(2) + Lv/2(3) + 風 — wind=1 得 7', () => {
     const c = makeChar();
     c.stats.elements.wind = 1;
-    expect(deriveAll(c).combat.ranged).toBe(9);
+    expect(deriveAll(c).combat.ranged).toBe(1 + 2 + 3 + 1);
   });
 
-  test('精神 = 理8 + Lv/2(3) + 空3 = 14', () => {
+  test('精神 = 紅利_理(2) + 紅利_意(2) + Lv/2(3) + 空 — void=3 得 10', () => {
     const c = makeChar();
     c.stats.elements.void = 3;
-    expect(deriveAll(c).combat.psychic).toBe(14);
+    expect(deriveAll(c).combat.psychic).toBe(2 + 2 + 3 + 3);
   });
 
-  test('行動 = 意6 + Lv/2(3) + 風1 = 10', () => {
+  test('行動 = 紅利_體(2) + 紅利_意(2) + Lv/2(3) + 風 — wind=1 得 8', () => {
     const c = makeChar();
     c.stats.elements.wind = 1;
-    expect(deriveAll(c).combat.action).toBe(10);
+    expect(deriveAll(c).combat.action).toBe(2 + 2 + 3 + 1);
   });
 
   test('Lv 為奇數 → halfLv 取下整', () => {
     const c = makeChar();
     c.classes = [{ id: 'kenshi', level: 5, isPrimary: true }];
     // halfLv = floor(5/2) = 2
-    // 近戰 = physical(7) + 2 + fire = 9 + fire
+    // 近戰 = bonus.phys(2) + bonus.perc(1) + 2 + fire
     c.stats.elements.fire = 0;
-    expect(deriveAll(c).combat.melee).toBe(9);
+    expect(deriveAll(c).combat.melee).toBe(2 + 1 + 2 + 0);
   });
 
   test('無級別 → Lv = 0', () => {
@@ -159,10 +168,10 @@ describe('deriveAll — v3 設計範例（久遠寺 透 LV6 古神道+魔術師�
     expect(d.hp).toBe(7 * 6 + 0); // 42
   });
 
-  test('返回值含 totals/hp/tp/combat/defense/bond/characterLevel', () => {
+  test('返回值含 totals/bonus/hp/tp/combat/defense/bond/characterLevel', () => {
     const d = deriveAll(makeChar());
     expect(Object.keys(d).sort()).toEqual(
-      ['bond', 'characterLevel', 'combat', 'defense', 'hp', 'totals', 'tp'].sort()
+      ['bond', 'bonus', 'characterLevel', 'combat', 'defense', 'hp', 'totals', 'tp'].sort()
     );
   });
 

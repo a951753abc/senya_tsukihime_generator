@@ -8,7 +8,7 @@
 
 import { bindFields, applyFields, getActiveCard } from '../helpers.js';
 import { loadLevel } from '../data-loader.js';
-import { abilityTotal, abilityToPercent } from '../derive.js';
+import { abilityTotal, abilityBonus, abilityToPercent } from '../derive.js';
 
 const ABILITIES = [
   ['physical',   '體力', 'TAIRYOKU'],
@@ -35,7 +35,10 @@ function attrSliderHtml(key, name, yomi) {
         <span class="fill" data-fill style="width:0%"></span>
         <span class="thumb" data-thumb style="left:0%"></span>
       </div>
-      <div class="num"><span data-total>0</span><small>/10</small></div>
+      <div class="num">
+        <span data-total>0</span><small>/10</small>
+        <span data-bonus title="能力紅利 = ⌊合計/3⌋（判定用）" style="display:block;font-size:9px;color:var(--shu);font-weight:500;letter-spacing:.1em;margin-top:2px">紅利 0</span>
+      </div>
       <div class="breakdown" data-breakdown>
         ${COLS.map(([k, label]) => `<span>${label} <b data-bd="${k}">—</b></span>`).join('')}
       </div>
@@ -147,6 +150,8 @@ export function mountAttrs(rootEl, store) {
       thumb.style.left = `${pct}%`;
       thumb.classList.toggle('shu', total >= 7);
       attr.querySelector('[data-total]').textContent = total;
+      const bonusEl = attr.querySelector('[data-bonus]');
+      if (bonusEl) bonusEl.textContent = `紅利 ${abilityBonus(total)}`;
       // breakdown
       for (const [colKey] of COLS) {
         const bd = attr.querySelector(`[data-bd="${colKey}"]`);

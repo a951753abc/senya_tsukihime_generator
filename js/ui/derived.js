@@ -40,14 +40,15 @@ export function mountDerived(rootEl, store) {
     const tpBar = $('[data-d="tp-bar"]');
     if (tpBar) tpBar.style.width = '100%';
 
-    // 4 戰鬥值
+    // 4 戰鬥值 — 顯示為 紅利_X + 紅利_Y + Lv/2 + 元素
     const lv = d.characterLevel;
     const halfLv = Math.floor(lv / 2);
+    const b = d.bonus;
     const breakdowns = {
-      melee:   `体${d.totals.physical}+Lv/2(${halfLv})+火${card.stats.elements.fire}`,
-      ranged:  `知${d.totals.perception}+Lv/2(${halfLv})+風${card.stats.elements.wind}`,
-      psychic: `理${d.totals.reason}+Lv/2(${halfLv})+空${card.stats.elements.void}`,
-      action:  `意${d.totals.will}+Lv/2(${halfLv})+風${card.stats.elements.wind}`,
+      melee:   `紅利体${b.physical}+知${b.perception}+Lv/2(${halfLv})+火${card.stats.elements.fire || 0}`,
+      ranged:  `紅利知${b.perception}+理${b.reason}+Lv/2(${halfLv})+風${card.stats.elements.wind || 0}`,
+      psychic: `紅利理${b.reason}+意${b.will}+Lv/2(${halfLv})+空${card.stats.elements.void || 0}`,
+      action:  `紅利体${b.physical}+意${b.will}+Lv/2(${halfLv})+風${card.stats.elements.wind || 0}`,
     };
     for (const k of ['melee', 'ranged', 'psychic', 'action']) {
       const box = $(`[data-d-combat="${k}"]`);
