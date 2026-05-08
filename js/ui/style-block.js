@@ -82,6 +82,25 @@ export async function mountStyleBlock(rootEl, store) {
     const styles = card.styles || [];
     const usedNames = new Set(styles.map(s => s.name));
 
+    const descGridHtml = styles.length === 0 ? '' : `
+      <div class="style-desc-grid">
+        ${styles.map((s, i) => {
+          const isPrimary = i === 0;
+          const ord = isPrimary ? '主' : (i < 9 ? `0${i + 1}` : String(i + 1));
+          const desc = s.description || '（暫無描述）';
+          const repr = s.representative ? `<span class="repr">代表角色：${escapeHtml(s.representative)}</span>` : '';
+          return `<article class="style-desc${isPrimary ? ' primary' : ''}">
+            <header>
+              <span class="ord">${escapeHtml(ord)}</span>
+              <span class="nm">${escapeHtml(s.name)}</span>
+              ${s.classification ? `<span class="cat">${escapeHtml(s.classification)}</span>` : ''}
+            </header>
+            <p>${escapeHtml(desc)}</p>
+            ${repr}
+          </article>`;
+        }).join('')}
+      </div>`;
+
     rootEl.innerHTML = `
       <div class="style-head">
         <span class="lbl">風格 — style</span>
@@ -98,8 +117,9 @@ export async function mountStyleBlock(rootEl, store) {
         <div class="h">獲得感情</div>
         ${derivedHtml(styles)}
       </div>
+      ${descGridHtml}
       <div class="style-hint">
-        <span><b>連動：</b>風格決定其下四欄；新增／移除即時同步。</span>
+        <span><b>連動：</b>風格決定其下四欄與描述文；新增／移除即時同步。</span>
         <span><b>主風格：</b>第一個為主，朱色標記。</span>
         <span><b>切換主：</b>點任一風格 chip → 升為主。</span>
       </div>

@@ -268,12 +268,36 @@ export async function mountSkills({ pickerEl, equippedEl, detailEl }, store) {
     const filteredCount = filtered.length;
 
     const groups = buildGroups(filtered);
+    // 各 group 已習得數量（用於「✕ 清空 N」按鈕）
+    function equippedCountFor(g) {
+      if (!card?.skills?.equipped) return 0;
+      // 對 級別模式：g.key 是 classId（含 COMMON_PSEUDO_ID）
+      if (filters.sortMode === '級別') {
+        if (g.key === COMMON_PSEUDO_ID) {
+          return card.skills.equipped.filter(s => !s.classId).length;
+        }
+        return card.skills.equipped.filter(s => s.classId === g.key).length;
+      }
+      // 分類 / 代價模式：依 group items 的名稱集合判定
+      const setOfNames = new Set(g.items.map(it => skillKey(it.classId, it.name)));
+      return card.skills.equipped.filter(s => setOfNames.has(skillKey(s.classId, s.name))).length;
+    }
+
     const groupsHtml = groups.map(g => {
       const roleLabel = g.role === 'primary' ? '主級別' : (g.role === 'sub' ? '副級別' : (g.role === 'common' ? '全職通用' : ''));
       const roleClass = g.role || 'common';
+      const eqN = equippedCountFor(g);
+      const clearKey = filters.sortMode === '級別' ? (g.key || '') : '';
+      const clearBtn = filters.sortMode === '級別' && clearKey
+        ? `<button class="clear" data-clear-group="${escapeHtml(clearKey)}"${eqN === 0 ? ' disabled' : ''}>✕ 清空 ${eqN}</button>`
+        : '';
       return `<div class="skp-group-h">
         <span>${escapeHtml(g.title)}</span>
-        <span class="lbl-r"><span class="role ${roleClass}">${roleLabel}</span><span class="ct">${g.items.length}</span></span>
+        <span class="lbl-r">
+          <span class="role ${roleClass}">${roleLabel}</span>
+          <span class="ct">${g.items.length}</span>
+          ${clearBtn}
+        </span>
       </div>` + g.items.map(s => renderItemHtml(s, card)).join('');
     }).join('');
 
@@ -333,7 +357,8 @@ export async function mountSkills({ pickerEl, equippedEl, detailEl }, store) {
       <div class="skp-bar">
         <div class="seg" role="tablist">${sortSegHtml}</div>
         <span class="spacer"></span>
-        <span class="count"><b>${filteredCount}</b> 候補 · <b>${totalEquipped}</b> 已習得</span>
+        <button class="clear-all" data-clear-all${totalEquipped === 0 ? ' disabled' : ''}>✕ 清空全部 ${totalEquipped}</button>
+        <span class="count"><b>${filteredCount}</b> 候補</span>
       </div>
       <div class="skp-filters">${filterChips}</div>
       <div class="skp-list">${listHtml}</div>
@@ -472,6 +497,40 @@ export async function mountSkills({ pickerEl, equippedEl, detailEl }, store) {
     if (closeBtn) {
       dismissedInitBanners.add(closeBtn.dataset.closeInit);
       renderPicker();
+      return;
+    }
+
+    // 清空全部
+    const clearAllBtn = t.closest('[data-clear-all]');
+    if (clearAllBtn) {
+      if (clearAllBtn.disabled) return;
+      const total = card.skills.equipped.length;
+      if (!confirm(`確定要清空全部 ${total} 個已習得特技？此動作不可復原（除非從匯出 JSON 還原）。`)) return;
+      store.updateCard(card.id, c => { c.skills.equipped = []; });
+      expanded.clear();
+      highlightedKey = null;
+      return;
+    }
+
+    // 清空單一級別
+    const clearGrpBtn = t.closest('[data-clear-group]');
+    if (clearGrpBtn) {
+      if (clearGrpBtn.disabled) return;
+      const grpKey = clearGrpBtn.dataset.clearGroup;
+      const targetClassId = grpKey === COMMON_PSEUDO_ID ? null : grpKey;
+      const matched = card.skills.equipped.filter(
+        s => (s.classId || null) === targetClassId
+      );
+      if (matched.length === 0) return;
+      const grpName = grpKey === COMMON_PSEUDO_ID
+        ? '共通'
+        : (levelMetaById.get(grpKey)?.name || grpKey);
+      if (!confirm(`確定要清空「${grpName}」的 ${matched.length} 個已習得特技？`)) return;
+      store.updateCard(card.id, c => {
+        c.skills.equipped = c.skills.equipped.filter(
+          s => (s.classId || null) !== targetClassId
+        );
+      });
       return;
     }
 
