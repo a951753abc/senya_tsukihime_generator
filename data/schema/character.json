@@ -66,12 +66,14 @@
         "required": ["name", "isPrimary"],
         "properties": {
           "name": { "type": "string" },
-          "category": { "enum": ["神祕", "戰士", "社會", "情念"], "description": "風格大類" },
-          "classification": { "type": "string", "description": "分類（如 儀典・封印）" },
+          "classification": { "type": "string", "description": "分類（常時／中斷／準備階段／通用 等）" },
           "antithesis": { "type": "string", "description": "背反律" },
           "compensation": { "type": "string", "description": "代償" },
           "emotion": { "type": "string", "description": "獲得感情" },
-          "isPrimary": { "type": "boolean", "description": "主風格 — 朱色標記，同類條件優先生效" }
+          "isPrimary": { "type": "boolean", "description": "主風格 — 朱色標記，同類條件優先生效" },
+          "description": { "type": "string", "description": "風格描述（reference 來自 styles.json）" },
+          "classRestriction": { "type": "string", "description": "級別限制（無／古神道／劍士or武鬥家 等）" },
+          "representative": { "type": "string", "description": "代表角色（flavor）" }
         },
         "additionalProperties": false
       }

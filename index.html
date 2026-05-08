@@ -85,52 +85,8 @@
            Phase 1-D 後接通
            ============================================================ -->
 
-      <!-- 風格（靜態示範） -->
-      <div class="style-block">
-        <div class="style-head">
-          <span class="lbl">風格 — style</span>
-          <div class="style-chips">
-            <span class="style-tag primary"><span class="ord">主</span>月讀の巫祝<span class="x">×</span></span>
-            <span class="style-tag"><span class="ord">02</span>夢渡り<span class="x">×</span></span>
-            <select class="style-pick" disabled>
-              <option value="" selected disabled>＋ 追加風格（Phase 1-D 後啟用）</option>
-            </select>
-          </div>
-        </div>
-        <div class="style-derived">
-          <div class="h">風格</div>
-          <div class="h">分類</div>
-          <div class="h">背反律</div>
-          <div class="h">代償</div>
-          <div class="h">獲得感情</div>
-          <div class="style-row primary">
-            <div class="cell style-name"><span class="marker"></span>月讀の巫祝</div>
-            <div class="cell">儀典・封印</div>
-            <div class="cell">不可離宮三日</div>
-            <div class="cell">記憶の一片</div>
-            <div class="cell">憧憬</div>
-          </div>
-          <div class="style-row">
-            <div class="cell style-name"><span class="marker"></span>夢渡り</div>
-            <div class="cell">夢幻・移動</div>
-            <div class="cell">夜中三刻に眠れず</div>
-            <div class="cell">体力 −1（一場面）</div>
-            <div class="cell">郷愁</div>
-          </div>
-          <div class="style-row total-row">
-            <div class="cell">合計／統合</div>
-            <div class="cell"><span class="merge-tag shu">儀典・封印</span><span class="merge-tag">夢幻・移動</span></div>
-            <div class="cell"><span class="merge-tag shu">不可離宮三日</span><span class="merge-tag">夜中三刻に眠れず</span></div>
-            <div class="cell"><span class="merge-tag shu">記憶の一片</span><span class="merge-tag">体力 −1</span></div>
-            <div class="cell"><span class="merge-tag shu">憧憬</span><span class="merge-tag">郷愁</span></div>
-          </div>
-        </div>
-        <div class="style-hint">
-          <span><b>連動：</b>風格決定其下四欄；變更或移除風格時自動同步。</span>
-          <span><b>主風格：</b>朱色標記，於同類條件中優先生效。</span>
-          <span><b>合計：</b>所有條件同時對角色生效（及其代價）。</span>
-        </div>
-      </div>
+      <!-- 風格 — JS 渲染 -->
+      <div id="style-block" class="style-block"></div>
 
       <!-- ATTRIBUTES — JS 渲染 -->
       <div class="ritual-divider">

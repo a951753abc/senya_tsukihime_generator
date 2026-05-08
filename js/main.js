@@ -11,6 +11,7 @@ import { mountElements } from './ui/elements.js';
 import { mountSetting } from './ui/setting.js';
 import { mountDerived } from './ui/derived.js';
 import { mountSkills } from './ui/skills.js';
+import { mountStyleBlock } from './ui/style-block.js';
 
 const store = createStore();
 const meta = await loadMeta();
@@ -35,6 +36,7 @@ await mountSkills({
   equippedEl: $('equipped-strip'),
   detailEl:   $('sk-detail'),
 }, store);
+await mountStyleBlock($('style-block'), store);
 
 // 暴露到 window for debug
 window.__store = store;

@@ -23,6 +23,14 @@ export function loadCommonSkills() {
   return load('./data/common-skills.json');
 }
 
+export function loadStyles() {
+  return load('./data/styles.json');
+}
+
+export function loadEmotions() {
+  return load('./data/emotions.json');
+}
+
 export function clearCache() {
   cache.clear();
 }
