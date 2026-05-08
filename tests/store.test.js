@@ -32,9 +32,9 @@ describe('defaultCharacter shape', () => {
     });
   });
 
-  test('progression 預設 0 / 0 / null / 1', () => {
+  test('progression 預設 remainingExp=0、initial=空字串（characterLevel 派生不入庫）', () => {
     expect(defaultCharacter().progression).toEqual({
-      characterLevel: 0, remainingExp: 0, initialClassId: null, initialLevel: 1
+      remainingExp: 0, initial: ''
     });
   });
 

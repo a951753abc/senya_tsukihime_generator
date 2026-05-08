@@ -32,10 +32,8 @@ export function defaultCharacter() {
       race: '', society: '', age: '', gender: '', appearance: '',
     },
     progression: {
-      characterLevel: 0,
       remainingExp: 0,
-      initialClassId: null,
-      initialLevel: 1,
+      initial: '',
     },
     classes: [],
     styles: [],

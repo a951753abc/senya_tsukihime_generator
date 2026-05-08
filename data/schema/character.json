@@ -34,11 +34,10 @@
     },
     "progression": {
       "type": "object",
+      "description": "角色等級（characterLevel）由 derive.js 從 classes[].level 合計，不入庫。",
       "properties": {
-        "characterLevel": { "type": "integer", "minimum": 0, "description": "角色等級（多級別 level 合計）" },
         "remainingExp": { "type": "integer", "minimum": 0, "description": "剩餘經驗點" },
-        "initialClassId": { "type": ["string", "null"], "description": "初始級別 id" },
-        "initialLevel": { "type": "integer", "minimum": 1 }
+        "initial": { "type": "string", "description": "初始級別／初始等級記錄（如 '古神道 / 4'，自由文字）" }
       },
       "additionalProperties": false
     },
