@@ -1,20 +1,28 @@
 /* ======================================================================
-   Print Mode — A4 一頁角色卡（中欄為主，左／右欄與互動 UI 隱藏）
-   Phase 2 會細化；目前先確保 Ctrl+P 不會印出 dev UI
+   Print Mode — A4 一頁角色卡
    ====================================================================== */
 
 @media print {
-  body {
-    background: white !important;
-    background-image: none !important;
-    color: var(--paper-900);
+  @page {
+    size: A4;
+    margin: 12mm 10mm;
   }
 
+  html, body {
+    background: white !important;
+    background-image: none !important;
+    color: var(--paper-900) !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  /* 隱藏所有互動 / 控制 / 補助 UI */
   .titlebar,
   .tabs,
   .col.left,
   .col.right,
   .ritual-divider .chev,
+  .ritual-divider .badge,
   .skp-foot,
   .slot-add,
   .dice-btn,
@@ -24,27 +32,126 @@
   .btn,
   .btn-sm,
   .btn-grid,
-  .export {
+  .export,
+  .style-tag .x,
+  .elem-x .x,
+  .slot .rm,
+  [data-action="rm"],
+  [data-action="add"],
+  [data-action="set-emotion"]::-webkit-calendar-picker-indicator {
     display: none !important;
   }
 
+  /* 3-col grid 改單欄 */
   .app {
-    display: block;
+    display: block !important;
   }
-
   .col.center {
-    padding: 0;
+    padding: 0 !important;
+  }
+  .sec-label,
+  .col.center .sec-label {
+    display: none !important;
   }
 
+  /* card 全頁鋪 */
   .card {
-    box-shadow: none;
+    box-shadow: none !important;
     border: 1px solid var(--paper-300);
+    padding: 8mm 10mm !important;
+    background: white !important;
+    page-break-inside: auto;
+    border-radius: 4px;
+  }
+  .card::before,
+  .card::after {
+    display: none !important;
+  }
+  .watermark { display: none !important; }
+
+  /* 各 section 不要被 page-break 切斷 */
+  .row-class,
+  .style-block,
+  .attrs,
+  .stat-table,
+  .elem-row,
+  .elem-extra,
+  .equipped-strip,
+  .sk-detail,
+  .items-grid,
+  .rel-table,
+  .setting-grid {
     page-break-inside: avoid;
   }
 
-  /* 簡化內部 textarea：用 border 顯示 */
+  /* divider 簡化 */
+  .ritual-divider {
+    margin: 6mm 0 3mm !important;
+    color: var(--paper-700) !important;
+    font-size: 9pt !important;
+    letter-spacing: .3em !important;
+    border-bottom: 1px solid var(--paper-300);
+    padding-bottom: 2mm;
+  }
+  .ritual-divider::before,
+  .ritual-divider::after { display: none; }
+
+  /* input 改成可印的「下劃線」風 */
+  input.pf-input,
+  input[data-field],
+  input[data-action],
+  textarea {
+    border: 0 !important;
+    border-bottom: 1px solid var(--paper-300) !important;
+    background: transparent !important;
+    color: var(--paper-900) !important;
+    -webkit-text-fill-color: var(--paper-900) !important;
+    box-shadow: none !important;
+    padding: 1px 2px !important;
+  }
   textarea {
     border: 1px solid var(--paper-300) !important;
-    page-break-inside: avoid;
+    min-height: auto !important;
+    height: auto !important;
+    overflow: visible !important;
+  }
+
+  /* slider 不要印（用 num 代替）*/
+  .slider {
+    display: none !important;
+  }
+  .attr {
+    grid-template-columns: 60px 1fr !important;
+  }
+  .attr .num {
+    text-align: left !important;
+    margin-left: 8px;
+  }
+  .attr .breakdown {
+    grid-column: 1 / -1 !important;
+  }
+
+  /* 級別槽 ＋ 鍵不印 */
+  .slot .lvl button { display: none !important; }
+  .slot {
+    grid-template-columns: 22px 1.4fr 60px !important;
+  }
+
+  /* style-tag × 鍵不印 */
+  .style-tag .x { display: none !important; }
+  .style-pick { display: none !important; }
+
+  /* 派生資訊 — 在卡片底部加一行 inline */
+  .card::after {
+    /* 已在前面 disable，這裡不重新顯示 */
+  }
+
+  /* 字體微調，免太胖 */
+  body {
+    font-size: 10pt;
+    line-height: 1.45;
+  }
+  h1, h2, h3, .pf-input.big {
+    color: var(--paper-900) !important;
   }
 }

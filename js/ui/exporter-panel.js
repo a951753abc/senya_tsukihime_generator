@@ -1,72 +1,69 @@
 /**
- * 右欄匯出面板 — 接通既有按鈕（Markdown / BBCode / 列印 / ccfolia / 主匯出）
+ * 右欄匯出面板 — 接通既有按鈕（Markdown / BBCode / 列印 / ccfolia / 主匯出 / 匯入 / Share / PNG）
  */
 
 import { getActiveCard } from '../helpers.js';
 import { toMarkdown } from '../exporters/markdown.js';
-import { exportCharacterJson, exportAllJson, pickAndImportJson } from '../exporters/json-io.js';
+import { toBBCode } from '../exporters/bbcode.js';
+import { toCcfolia } from '../exporters/ccfolia.js';
+import { exportCardPng } from '../exporters/png.js';
+import { exportCharacterJson, pickAndImportJson } from '../exporters/json-io.js';
+import { encodeCardToUrl } from '../exporters/url-share.js';
+
+function safeFilename(s) {
+  return String(s || '無名').replace(/[\\/:*?"<>|]/g, '_').slice(0, 60);
+}
+
+function downloadJson(obj, filename) {
+  const blob = new Blob([JSON.stringify(obj, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  setTimeout(() => { document.body.removeChild(a); URL.revokeObjectURL(url); }, 100);
+}
 
 function copyToClipboard(text) {
-  if (navigator.clipboard?.writeText) {
-    return navigator.clipboard.writeText(text);
-  }
-  // Fallback
+  if (navigator.clipboard?.writeText) return navigator.clipboard.writeText(text);
   const ta = document.createElement('textarea');
   ta.value = text;
-  ta.style.position = 'fixed';
-  ta.style.opacity = '0';
+  ta.style.position = 'fixed'; ta.style.opacity = '0';
   document.body.appendChild(ta);
   ta.select();
   try { document.execCommand('copy'); } finally { document.body.removeChild(ta); }
   return Promise.resolve();
 }
 
-function flashStatus(el, text, ms = 2000) {
+function flashStatus(el, text, ms = 2400) {
   if (!el) return;
-  const original = el.textContent;
-  el.textContent = text;
-  setTimeout(() => { el.textContent = original; }, ms);
+  if (!el._origText) el._origText = el.innerHTML;
+  el.innerHTML = `<span style="color:var(--gold)">${text}</span>`;
+  clearTimeout(el._timer);
+  el._timer = setTimeout(() => { el.innerHTML = el._origText; }, ms);
 }
 
 export function mountExporterPanel(rootEl, store) {
-  // 取按鈕（已在 index.html 中存在）
+  const meta = rootEl.querySelector('.export-meta');
   const btnPrimary = rootEl.querySelector('.btn.primary');
   const buttons = rootEl.querySelectorAll('.btn-sm');
-  const meta = rootEl.querySelector('.export-meta');
 
-  const handlers = {
-    primary: () => {
-      const card = getActiveCard(store.getState());
-      if (!card) { alert('沒有可匯出的角色'); return; }
-      const name = exportCharacterJson(card);
-      flashStatus(meta, `已匯出 ${name}`);
-    },
-    Markdown: async () => {
-      const card = getActiveCard(store.getState());
-      if (!card) { alert('沒有可匯出的角色'); return; }
-      const md = toMarkdown(card);
-      try {
-        await copyToClipboard(md);
-        flashStatus(meta, `Markdown 已複製到剪貼簿（${md.length} 字）`);
-      } catch (e) {
-        // 如複製失敗，開新視窗顯示
-        const w = window.open('', '_blank');
-        w.document.write(`<pre style="white-space:pre-wrap;font-family:monospace;padding:24px">${md.replace(/[<&]/g, c => ({ '<': '&lt;', '&': '&amp;' }[c]))}</pre>`);
-        flashStatus(meta, '在新視窗顯示 Markdown');
-      }
-    },
-    BBCode: () => alert('BBCode 匯出待實作（Phase 2）'),
-    'ccfolia': () => alert('ccfolia 匯出待實作（Phase 3）— 需先確認 schema'),
-  };
-
-  if (btnPrimary && !btnPrimary.disabled) {
-    // already enabled — skip
+  function getCard() {
+    const card = getActiveCard(store.getState());
+    if (!card) { alert('沒有可匯出的角色'); return null; }
+    return card;
   }
+
+  // 主鈕：JSON 匯出
   if (btnPrimary) {
     btnPrimary.disabled = false;
     btnPrimary.textContent = '⎙ 匯出 JSON';
-    btnPrimary.title = '下載當前角色卡為 .json 檔';
-    btnPrimary.addEventListener('click', handlers.primary);
+    btnPrimary.addEventListener('click', () => {
+      const card = getCard(); if (!card) return;
+      const fn = exportCharacterJson(card);
+      flashStatus(meta, `已匯出 ${fn}`);
+    });
   }
 
   for (const btn of buttons) {
@@ -74,46 +71,90 @@ export function mountExporterPanel(rootEl, store) {
     if (label === 'Markdown') {
       btn.disabled = false;
       btn.title = '產 Markdown 並複製到剪貼簿';
-      btn.addEventListener('click', handlers.Markdown);
+      btn.addEventListener('click', async () => {
+        const card = getCard(); if (!card) return;
+        const md = toMarkdown(card);
+        try {
+          await copyToClipboard(md);
+          flashStatus(meta, `Markdown 已複製（${md.length} 字）`);
+        } catch {
+          window.open('').document.write(`<pre style="white-space:pre-wrap;font-family:monospace;padding:24px">${md.replace(/[<&]/g, c => ({ '<': '&lt;', '&': '&amp;' }[c]))}</pre>`);
+        }
+      });
     } else if (label === 'BBCode') {
-      btn.title = 'Phase 2 後啟用';
-      btn.addEventListener('click', handlers.BBCode);
-    } else if (label === '列印 A4') {
-      // 已在 index.html 用 onclick=window.print() 接好
       btn.disabled = false;
+      btn.title = '產 BBCode 並複製到剪貼簿';
+      btn.addEventListener('click', async () => {
+        const card = getCard(); if (!card) return;
+        const bb = toBBCode(card);
+        try {
+          await copyToClipboard(bb);
+          flashStatus(meta, `BBCode 已複製（${bb.length} 字）`);
+        } catch {
+          window.open('').document.write(`<pre style="white-space:pre-wrap;font-family:monospace;padding:24px">${bb.replace(/[<&]/g, c => ({ '<': '&lt;', '&': '&amp;' }[c]))}</pre>`);
+        }
+      });
+    } else if (label === '列印 A4') {
+      btn.disabled = false;
+      // 已用 onclick=window.print() 接好（保留），這裡多綁一個以策安全
     } else if (label === 'ccfolia') {
-      btn.title = 'Phase 3 後啟用';
-      btn.addEventListener('click', handlers['ccfolia']);
+      btn.disabled = false;
+      btn.title = 'ccfolia 角色卡 JSON 下載（schema 為通用格式，user 實測後若有偏差再調）';
+      btn.addEventListener('click', () => {
+        const card = getCard(); if (!card) return;
+        const obj = toCcfolia(card);
+        downloadJson(obj, `${safeFilename(card.meta?.name)}.ccfolia.json`);
+        flashStatus(meta, `已匯出 ccfolia JSON`);
+      });
     }
   }
 
-  // 在 export-meta 區插入「匯入」按鈕
+  // 額外按鈕：匯入 / Share URL / PNG
   if (meta) {
-    const importBtn = document.createElement('button');
-    importBtn.className = 'btn-sm';
-    importBtn.style.marginTop = '6px';
-    importBtn.style.width = '100%';
-    importBtn.textContent = '↥ 匯入 JSON';
-    importBtn.title = '從本地 .json 檔讀回角色卡';
-    importBtn.addEventListener('click', async () => {
+    const wrap = document.createElement('div');
+    wrap.style.cssText = 'display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:6px';
+    wrap.innerHTML = `
+      <button class="btn-sm" data-extra="import">↥ 匯入</button>
+      <button class="btn-sm" data-extra="share">🔗 Share URL</button>
+      <button class="btn-sm" data-extra="png" style="grid-column:span 2">🖼 截圖 PNG</button>
+    `;
+    meta.parentElement.insertBefore(wrap, meta);
+
+    wrap.querySelector('[data-extra="import"]').addEventListener('click', async () => {
       try {
-        const result = await pickAndImportJson();
-        for (const card of result.cards) {
-          // 為避免 id 衝突，重新分配 id
-          const newId = crypto.randomUUID();
-          const cardCopy = { ...card, id: newId };
-          // 直接 push 到 store（透過建立新卡 + 覆蓋的方式）
+        const r = await pickAndImportJson();
+        for (const card of r.cards) {
           const id = store.newCard();
-          store.updateCard(id, c => {
-            Object.assign(c, cardCopy);
-            c.id = id;  // 保持 store 給的 id
-          });
+          store.updateCard(id, c => { Object.assign(c, card, { id }); });
         }
-        flashStatus(meta, `已匯入 ${result.cards.length} 張角色卡`);
+        flashStatus(meta, `已匯入 ${r.cards.length} 張`);
       } catch (e) {
-        alert(`匯入失敗：${e.message}`);
+        if (e.message !== '未選檔案') alert(`匯入失敗：${e.message}`);
       }
     });
-    meta.parentElement.insertBefore(importBtn, meta);
+
+    wrap.querySelector('[data-extra="share"]').addEventListener('click', async () => {
+      const card = getCard(); if (!card) return;
+      try {
+        const { url, originalSize, compressedSize } = await encodeCardToUrl(card);
+        await copyToClipboard(url);
+        flashStatus(meta, `Share URL 已複製（${compressedSize}/${originalSize}b 壓縮）`);
+      } catch (e) {
+        alert(`Share URL 失敗：${e.message}`);
+      }
+    });
+
+    wrap.querySelector('[data-extra="png"]').addEventListener('click', async () => {
+      const card = getCard(); if (!card) return;
+      const cardEl = document.querySelector('.card');
+      if (!cardEl) { alert('找不到 .card 元素'); return; }
+      flashStatus(meta, `截圖中… 首次需下載 html2canvas`, 30000);
+      try {
+        const r = await exportCardPng(cardEl, `${safeFilename(card.meta?.name)}.png`);
+        flashStatus(meta, `PNG 已下載（${r.width}×${r.height}）`);
+      } catch (e) {
+        alert(`PNG 截圖失敗：${e.message}`);
+      }
+    });
   }
 }

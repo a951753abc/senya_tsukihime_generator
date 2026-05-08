@@ -15,6 +15,8 @@ import { mountStyleBlock } from './ui/style-block.js';
 import { mountItems } from './ui/items.js';
 import { mountRelationships } from './ui/relationships.js';
 import { mountExporterPanel } from './ui/exporter-panel.js';
+import { mountDiceSimulator } from './ui/dice-simulator.js';
+import { decodeUrlHash, clearUrlHash } from './exporters/url-share.js';
 
 const store = createStore();
 const meta = await loadMeta();
@@ -43,6 +45,23 @@ await mountStyleBlock($('style-block'), store);
 mountItems($('items'), store);
 await mountRelationships($('relationships'), store);
 mountExporterPanel(document.querySelector('#derived .export'), store);
+mountDiceSimulator($('dice-simulator'), store);
+
+// 偵測 URL hash share，若有則提示匯入
+try {
+  const card = await decodeUrlHash();
+  if (card) {
+    const ok = confirm(`偵測到分享 URL 含角色「${card.meta?.name || '無名'}」。\n要匯入到本地嗎？`);
+    if (ok) {
+      const id = store.newCard();
+      store.updateCard(id, c => { Object.assign(c, card, { id }); });
+    }
+    clearUrlHash();
+  }
+} catch (e) {
+  alert(`Share URL 解碼失敗：${e.message}`);
+  clearUrlHash();
+}
 
 // 暴露到 window for debug
 window.__store = store;
