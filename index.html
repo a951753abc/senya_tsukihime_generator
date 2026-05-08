@@ -111,59 +111,19 @@
       <div id="equipped-strip" class="equipped-strip"></div>
       <div id="sk-detail" class="sk-detail" style="display:none"></div>
 
-      <!-- 道具（靜態示範） -->
+      <!-- 道具 — JS 渲染 -->
       <div class="ritual-divider">
         <span class="glyph">具</span><span>items ・ 所持道具</span>
-        <span class="badge">demo</span>
         <span class="chev">▾</span>
       </div>
-      <div class="items-grid">
-        <div class="item-col">
-          <div class="h"><span class="name">道具</span><span class="tier">等級 1〜3</span></div>
-          <ul>
-            <li class="empty">—— Phase 1-D 後啟用 ——</li>
-          </ul>
-          <button class="add" disabled>＋ 添加</button>
-        </div>
-        <div class="item-col">
-          <div class="h"><span class="name">道具</span><span class="tier">等級 4〜6</span></div>
-          <ul>
-            <li class="empty">—— 空欄 ——</li>
-          </ul>
-          <button class="add" disabled>＋ 添加</button>
-        </div>
-        <div class="item-col">
-          <div class="h"><span class="name">道具</span><span class="tier">等級 7〜9</span></div>
-          <ul>
-            <li class="empty">—— 空欄 ——</li>
-          </ul>
-          <button class="add" disabled>＋ 添加</button>
-        </div>
-      </div>
+      <div id="items" class="items-grid"></div>
 
-      <!-- 角色關係表（靜態示範） -->
+      <!-- 角色關係 — JS 渲染 -->
       <div class="ritual-divider">
         <span class="glyph">縁</span><span>relationships ・ 角色關係表</span>
-        <span class="badge">demo</span>
         <span class="chev">▾</span>
       </div>
-      <table class="rel-table">
-        <thead>
-          <tr><th style="width:140px">角色名</th><th style="width:120px">感情</th><th style="width:80px">羈絆値</th><th>備註</th></tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td class="nm">（Phase 1-D 後接通）</td>
-            <td><span class="rel-emotion"><span class="tone pure"></span>—</span></td>
-            <td><span class="rel-bond pos">—</span></td>
-            <td>—</td>
-          </tr>
-        </tbody>
-      </table>
-      <div class="rel-foot">
-        <span>+ 追加關係（待接通）</span>
-        <span>羈絆值合計　<b id="bond-display">0</b></span>
-      </div>
+      <div id="relationships"></div>
 
       <!-- 角色設定 — JS 渲染 -->
       <div class="ritual-divider">

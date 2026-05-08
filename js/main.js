@@ -12,6 +12,9 @@ import { mountSetting } from './ui/setting.js';
 import { mountDerived } from './ui/derived.js';
 import { mountSkills } from './ui/skills.js';
 import { mountStyleBlock } from './ui/style-block.js';
+import { mountItems } from './ui/items.js';
+import { mountRelationships } from './ui/relationships.js';
+import { mountExporterPanel } from './ui/exporter-panel.js';
 
 const store = createStore();
 const meta = await loadMeta();
@@ -37,6 +40,9 @@ await mountSkills({
   detailEl:   $('sk-detail'),
 }, store);
 await mountStyleBlock($('style-block'), store);
+mountItems($('items'), store);
+await mountRelationships($('relationships'), store);
+mountExporterPanel(document.querySelector('#derived .export'), store);
 
 // 暴露到 window for debug
 window.__store = store;
