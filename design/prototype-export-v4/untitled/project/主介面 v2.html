@@ -1,0 +1,1402 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<title>千夜月姫・角色帳 — v2</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;500;700;900&family=Noto+Sans+JP:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    /* tokens — same family as v1, slight refinements for ritual_level 70 */
+    --ink-900:#0b0a0e;
+    --ink-800:#121118;
+    --ink-700:#1a1820;
+    --ink-600:#231f29;
+    --ink-500:#2c2834;
+    --ink-400:#3d3848;
+    --ink-300:#6a6577;
+    --ink-200:#a39ead;
+    --ink-100:#dcd6e2;
+
+    --paper-50:#f5efe1;
+    --paper-100:#ebe3cf;
+    --paper-200:#d8ccae;
+    --paper-300:#b6a682;
+    --paper-700:#564b35;
+    --paper-800:#3a3324;
+    --paper-900:#1f1c14;
+
+    --shu:#b0382b;
+    --shu-soft:#e57364;
+    --shu-deep:#7a1f17;
+    --gold:#c8a96a;
+    --gold-soft:#e9d8a8;
+    --kon:#2a3a52;
+
+    --f-heading:"Noto Serif JP","Songti SC","Yu Mincho",serif;
+    --f-body:"Noto Sans JP","Inter","Hiragino Sans",sans-serif;
+    --f-mono:"JetBrains Mono","SF Mono",monospace;
+
+    --t-xs:11px; --t-sm:12px; --t-base:13px; --t-md:14px;
+    --t-lg:16px; --t-xl:20px; --t-2xl:26px; --t-3xl:34px; --t-4xl:48px; --t-5xl:64px;
+
+    --s-1:4px; --s-2:8px; --s-3:12px; --s-4:16px; --s-5:20px;
+    --s-6:24px; --s-8:32px; --s-10:40px; --s-12:48px;
+
+    --r-sm:2px; --r-md:4px; --r-lg:8px;
+  }
+
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    font-family:var(--f-body);
+    font-size:var(--t-base);
+    color:var(--ink-100);
+    background:var(--ink-800);
+    background-image:
+      radial-gradient(1100px 600px at 80% -10%, rgba(176,56,43,.07), transparent 60%),
+      radial-gradient(900px 500px at -10% 110%, rgba(42,58,82,.18), transparent 60%);
+    min-height:100vh;
+    -webkit-font-smoothing:antialiased;
+  }
+
+  /* ============================================================ */
+  /* TOP: title bar + browser-style roster tabs                     */
+  /* ============================================================ */
+  .titlebar{
+    height:46px;
+    display:flex; align-items:center; gap:var(--s-5);
+    padding:0 var(--s-5);
+    border-bottom:1px solid var(--ink-500);
+    background:linear-gradient(180deg, rgba(255,255,255,.02), transparent);
+  }
+  .brand{display:flex; align-items:baseline; gap:10px; font-family:var(--f-heading)}
+  .brand .moon{
+    width:18px;height:18px;border:1px solid var(--gold); border-radius:50%;
+    box-shadow:inset -5px 0 0 0 var(--ink-800);
+    transform:translateY(3px);
+  }
+  .brand .name{font-size:15px; font-weight:700; letter-spacing:.3em}
+  .brand .sub{font-size:10px; color:var(--ink-300); letter-spacing:.35em; text-transform:uppercase}
+  .title-spacer{flex:1}
+  .title-meta{
+    font-family:var(--f-mono); font-size:10px; letter-spacing:.15em;
+    color:var(--ink-300); display:flex; gap:18px;
+  }
+  .title-meta b{color:var(--ink-100); font-weight:500}
+  .title-meta .dot{
+    display:inline-block; width:6px;height:6px; background:var(--gold); border-radius:50%;
+    margin-right:6px; box-shadow:0 0 8px var(--gold);
+    animation:pulse 2s infinite;
+  }
+  @keyframes pulse{50%{opacity:.4}}
+
+  /* tabs row */
+  .tabs{
+    display:flex; align-items:flex-end;
+    padding:8px 16px 0;
+    gap:2px;
+    background:var(--ink-900);
+    border-bottom:1px solid var(--ink-500);
+    position:relative;
+    min-height:44px;
+  }
+  .tab{
+    position:relative;
+    display:flex; align-items:center; gap:10px;
+    padding:9px 14px 9px 14px;
+    background:var(--ink-700);
+    border:1px solid var(--ink-500);
+    border-bottom:0;
+    border-top-left-radius:8px;
+    border-top-right-radius:8px;
+    color:var(--ink-200);
+    font-size:var(--t-sm);
+    cursor:pointer;
+    max-width:220px;
+    min-width:160px;
+    margin-bottom:-1px;
+  }
+  .tab:hover{background:var(--ink-600)}
+  .tab.active{
+    background:var(--ink-800);
+    color:var(--ink-100);
+    border-color:var(--ink-400);
+    border-bottom-color:var(--ink-800);
+    z-index:2;
+  }
+  .tab.active::before{
+    content:""; position:absolute; left:10px; right:10px; top:0; height:2px;
+    background:var(--shu);
+  }
+  .tab .seal{
+    width:16px;height:16px;border:1px solid currentColor; border-radius:2px;
+    display:flex; align-items:center; justify-content:center;
+    font-family:var(--f-heading); font-size:10px; font-weight:700;
+    flex-shrink:0;
+    color:var(--gold);
+    border-color:var(--gold);
+  }
+  .tab.active .seal{ color:var(--shu); border-color:var(--shu) }
+  .tab .nm{font-family:var(--f-heading); font-weight:500; font-size:13px; flex:1; overflow:hidden; white-space:nowrap; text-overflow:ellipsis}
+  .tab .lv{font-family:var(--f-mono); font-size:10px; color:var(--ink-300); letter-spacing:.1em}
+  .tab .x{
+    width:16px;height:16px; border-radius:50%; display:flex; align-items:center; justify-content:center;
+    color:var(--ink-300); font-size:13px; line-height:1;
+  }
+  .tab .x:hover{background:var(--ink-500); color:var(--shu-soft)}
+  .tab.add{
+    min-width:auto; max-width:none;
+    background:transparent;
+    border:1px dashed var(--ink-400);
+    color:var(--ink-300);
+    padding:9px 14px;
+    font-family:var(--f-heading); letter-spacing:.2em;
+  }
+  .tab.add:hover{border-color:var(--gold); color:var(--gold)}
+  .tabs-end{
+    margin-left:auto;
+    display:flex; align-items:center; gap:8px;
+    margin-bottom:6px;
+    font-family:var(--f-mono); font-size:10px; color:var(--ink-300); letter-spacing:.15em;
+  }
+  .kbd{
+    display:inline-block; padding:1px 6px; border:1px solid var(--ink-500);
+    border-bottom-width:2px; border-radius:3px; color:var(--ink-200); font-size:10px;
+  }
+
+  /* ============================================================ */
+  /* APP GRID                                                       */
+  /* ============================================================ */
+  .app{
+    display:grid;
+    grid-template-columns: 320px 1fr 380px;
+    min-height:calc(100vh - 90px);
+  }
+  .col{padding:var(--s-6); min-width:0}
+  .col.left{
+    border-right:1px solid var(--ink-500);
+    background:linear-gradient(180deg, var(--ink-800), var(--ink-900));
+    display:flex; flex-direction:column;
+  }
+  .col.right{
+    border-left:1px solid var(--ink-500);
+    background:linear-gradient(180deg, var(--ink-800), #08070c);
+  }
+
+  /* ============================================================ */
+  /* SECTION LABELS                                                 */
+  /* ============================================================ */
+  .sec-label{
+    display:flex; align-items:center; gap:var(--s-3);
+    margin:0 0 var(--s-4);
+    font-family:var(--f-heading);
+    font-size:var(--t-sm); letter-spacing:.4em; color:var(--ink-200);
+    text-transform:uppercase;
+  }
+  .sec-label .glyph{font-size:var(--t-lg); color:var(--gold); letter-spacing:0; font-weight:700}
+  .sec-label .rule{flex:1; height:1px; background:linear-gradient(90deg,var(--ink-500),transparent)}
+  .sec-label .ord{font-family:var(--f-mono); font-size:var(--t-xs); color:var(--ink-300)}
+
+  /* ============================================================ */
+  /* LEFT — SKILL PICKER (checklist)                                */
+  /* ============================================================ */
+  .skp-search{
+    position:relative; margin-bottom:var(--s-3);
+  }
+  .skp-search input{
+    width:100%; padding:9px 12px 9px 32px;
+    background:var(--ink-700); border:1px solid var(--ink-500);
+    border-radius:var(--r-sm); color:var(--ink-100);
+    font-family:var(--f-body); font-size:var(--t-sm); outline:none;
+  }
+  .skp-search input:focus{border-color:var(--gold)}
+  .skp-search::before{
+    content:"⌕"; position:absolute; left:10px; top:50%; transform:translateY(-50%);
+    color:var(--ink-300); font-size:var(--t-md);
+  }
+
+  .skp-filters{
+    display:flex; gap:4px; flex-wrap:wrap;
+    margin-bottom:var(--s-4);
+    font-family:var(--f-mono); font-size:10px; letter-spacing:.1em;
+  }
+  .skp-chip{
+    padding:4px 9px; border:1px solid var(--ink-500); border-radius:999px;
+    color:var(--ink-300); cursor:pointer;
+  }
+  .skp-chip.on{background:var(--shu); border-color:var(--shu); color:#fff}
+  .skp-chip:hover:not(.on){border-color:var(--ink-300); color:var(--ink-100)}
+
+  .skp-list{
+    flex:1;
+    overflow:auto;
+    border-top:1px solid var(--ink-500);
+    margin:0 calc(var(--s-6) * -1);
+    padding:0 var(--s-6);
+  }
+  .skp-group-h{
+    font-family:var(--f-heading); font-size:var(--t-xs); letter-spacing:.5em;
+    color:var(--ink-300); text-transform:uppercase;
+    padding:var(--s-4) 0 var(--s-2);
+    border-bottom:1px solid var(--ink-500);
+    margin-bottom:var(--s-2);
+    display:flex; justify-content:space-between;
+  }
+  .skp-group-h .ct{font-family:var(--f-mono); color:var(--gold); letter-spacing:.1em}
+
+  .skp-item{
+    display:grid; grid-template-columns:18px 1fr auto;
+    align-items:center; gap:10px;
+    padding:10px 8px;
+    border-radius:var(--r-sm);
+    cursor:pointer;
+    border:1px solid transparent;
+  }
+  .skp-item:hover{background:var(--ink-700)}
+  .skp-item.selected{
+    background:linear-gradient(90deg, rgba(176,56,43,.18), transparent);
+    border-color:var(--ink-500);
+  }
+  .skp-item.selected::before{
+    content:""; position:absolute;
+  }
+  .check{
+    width:18px;height:18px; border:1.5px solid var(--ink-300);
+    border-radius:3px; display:flex; align-items:center; justify-content:center;
+    flex-shrink:0;
+  }
+  .check.on{background:var(--shu); border-color:var(--shu)}
+  .check.on::after{content:"✓"; color:#fff; font-size:11px; line-height:1}
+  .skp-item .nm{
+    font-family:var(--f-heading); font-size:var(--t-md); font-weight:500;
+    color:var(--ink-100); line-height:1.25;
+  }
+  .skp-item .meta{
+    font-family:var(--f-mono); font-size:10px; color:var(--ink-300);
+    letter-spacing:.05em; margin-top:2px;
+  }
+  .skp-item.selected .nm{color:var(--gold-soft)}
+  .skp-cost{
+    font-family:var(--f-mono); font-size:10px; color:var(--shu-soft);
+    letter-spacing:.05em;
+  }
+  .skp-foot{
+    border-top:1px solid var(--ink-500);
+    padding-top:var(--s-3);
+    margin-top:var(--s-3);
+    font-family:var(--f-mono); font-size:var(--t-xs); color:var(--ink-300);
+    display:flex; justify-content:space-between;
+  }
+  .skp-foot b{color:var(--gold); font-weight:500}
+
+  /* ============================================================ */
+  /* CENTER — character card                                        */
+  /* ============================================================ */
+  .card{
+    background:linear-gradient(180deg, var(--paper-50) 0%, var(--paper-100) 100%);
+    color:var(--paper-900);
+    border-radius:var(--r-lg);
+    box-shadow:0 1px 0 rgba(255,255,255,.04) inset, 0 12px 40px rgba(0,0,0,.55), 0 2px 0 rgba(0,0,0,.4);
+    padding:var(--s-8) var(--s-10);
+    position:relative;
+    overflow:hidden;
+  }
+  .card::before{
+    content:""; position:absolute; inset:0; pointer-events:none;
+    background-image:repeating-linear-gradient(0deg, rgba(58,51,36,.025) 0 1px, transparent 1px 3px);
+    mix-blend-mode:multiply;
+  }
+  .card::after{
+    content:"千夜"; position:absolute; right:24px; top:24px;
+    font-family:var(--f-heading); font-weight:900;
+    color:var(--shu); font-size:13px;
+    letter-spacing:.1em;
+    border:1.5px solid var(--shu);
+    padding:6px 7px 4px;
+    line-height:1;
+    background:rgba(255,255,255,.3);
+    transform:rotate(-2deg);
+    writing-mode:vertical-rl;
+  }
+  .watermark{
+    position:absolute; right:6px; bottom:24px;
+    writing-mode:vertical-rl;
+    font-family:var(--f-mono); font-size:9px; color:var(--paper-300);
+    letter-spacing:.5em;
+  }
+
+  /* HEAD */
+  .card-head{display:flex; gap:var(--s-6); padding-right:60px}
+  .field-name{flex:1}
+  .field-name label{
+    display:block; font-family:var(--f-heading);
+    font-size:var(--t-xs); letter-spacing:.5em; color:var(--paper-700);
+    text-transform:uppercase; margin-bottom:6px;
+  }
+  .field-name input{
+    width:100%; background:transparent; border:0; border-bottom:1.5px solid var(--paper-300);
+    font-family:var(--f-heading); font-size:var(--t-3xl); font-weight:700;
+    color:var(--paper-900); padding:2px 0 4px; outline:none;
+  }
+  .field-name input:focus{border-color:var(--shu)}
+  .field-yomi{width:220px}
+  .field-yomi label{
+    display:block; font-family:var(--f-heading);
+    font-size:var(--t-xs); letter-spacing:.4em; color:var(--paper-700); margin-bottom:6px;
+  }
+  .field-yomi input{
+    width:100%; background:transparent; border:0; border-bottom:1px solid var(--paper-300);
+    font-family:var(--f-body); font-size:var(--t-md);
+    color:var(--paper-800); padding:6px 0; outline:none;
+  }
+
+  /* CLASS / LEVEL ROW */
+  .row-class{
+    margin-top:var(--s-6);
+  }
+  .row-class .head-line{
+    display:flex; align-items:baseline; justify-content:space-between;
+    margin-bottom:10px;
+  }
+  .row-class .head-line .lbl{
+    font-family:var(--f-heading);
+    font-size:var(--t-xs); letter-spacing:.4em; color:var(--paper-700);
+    text-transform:uppercase;
+  }
+  .row-class .head-line .total{
+    font-family:var(--f-mono); font-size:var(--t-xs);
+    color:var(--paper-700); letter-spacing:.1em;
+  }
+  .row-class .head-line .total b{
+    font-family:var(--f-heading); font-size:var(--t-lg);
+    color:var(--paper-900); margin:0 4px;
+  }
+
+  /* Stack of class slots */
+  .slot-stack{display:flex; flex-direction:column; gap:8px}
+  .slot{
+    display:grid;
+    grid-template-columns: 22px 1.4fr 110px 28px;
+    gap:10px; align-items:center;
+    padding:6px 8px 6px 6px;
+    background:rgba(255,255,255,.4);
+    border:1px solid var(--paper-300);
+    border-radius:var(--r-sm);
+  }
+  .slot.primary{
+    border-color:var(--shu);
+    background:rgba(255,255,255,.55);
+  }
+  .slot .ord{
+    font-family:var(--f-heading); font-weight:700; font-size:var(--t-md);
+    color:var(--paper-700); text-align:center;
+  }
+  .slot.primary .ord{color:var(--shu)}
+  .slot .pf-select{position:relative}
+  .slot .pf-select select{
+    appearance:none; -webkit-appearance:none; width:100%;
+    background:transparent; border:0;
+    padding:6px 28px 6px 4px;
+    font-family:var(--f-heading); font-size:var(--t-md); font-weight:500;
+    color:var(--paper-900); outline:none; cursor:pointer;
+  }
+  .slot .pf-select::after{
+    content:"▾"; position:absolute; right:8px; top:50%; transform:translateY(-50%);
+    color:var(--paper-700); pointer-events:none; font-size:11px;
+  }
+  .slot .pf-select .tag-line{
+    font-family:var(--f-mono); font-size:9px;
+    color:var(--paper-700); letter-spacing:.15em;
+    margin-left:4px; margin-top:-2px;
+  }
+  .slot .pf-select .tag-line .basic{color:var(--paper-700)}
+  .slot .pf-select .tag-line .adv{color:var(--shu)}
+  .slot .lvl{
+    display:flex; align-items:stretch;
+    border:1px solid var(--paper-300);
+    border-radius:var(--r-sm);
+    background:rgba(255,255,255,.5);
+    overflow:hidden; height:32px;
+  }
+  .slot .lvl button{
+    width:26px; background:transparent; border:0;
+    font-family:var(--f-mono); font-size:var(--t-md); color:var(--paper-700);
+    cursor:pointer;
+  }
+  .slot .lvl button:hover{background:rgba(0,0,0,.05); color:var(--paper-900)}
+  .slot .lvl input{
+    flex:1; background:transparent; border:0; text-align:center;
+    font-family:var(--f-mono); font-size:var(--t-lg); font-weight:700;
+    color:var(--paper-900); width:30px; outline:none;
+  }
+  .slot .lvl::before{
+    content:"Lv"; align-self:center;
+    font-family:var(--f-mono); font-size:9px; color:var(--paper-700);
+    letter-spacing:.2em; padding-left:8px;
+  }
+  .slot .rm{
+    width:24px; height:24px;
+    background:transparent; border:1px solid transparent;
+    color:var(--paper-300); border-radius:50%;
+    font-family:var(--f-mono); font-size:14px; line-height:1;
+    cursor:pointer;
+  }
+  .slot .rm:hover{border-color:var(--shu); color:var(--shu)}
+  .slot.primary .rm{visibility:hidden}
+
+  .slot-add{
+    margin-top:6px;
+    display:flex; align-items:center; gap:10px;
+    padding:8px 10px;
+    background:transparent;
+    border:1px dashed var(--paper-300);
+    border-radius:var(--r-sm);
+    width:100%;
+    color:var(--paper-700);
+    font-family:var(--f-heading); font-size:var(--t-sm); letter-spacing:.3em;
+    cursor:pointer;
+  }
+  .slot-add:hover:not(:disabled){border-color:var(--shu); color:var(--shu)}
+  .slot-add:disabled{opacity:.4; cursor:not-allowed}
+  .slot-add .hint{
+    margin-left:auto;
+    font-family:var(--f-mono); font-size:10px; letter-spacing:.1em; color:var(--paper-700);
+  }
+
+  /* Right-side rail next to slot stack: dice + advanced/basic legend */
+  .row-class .rail{
+    display:grid; grid-template-columns: 1fr; gap:10px;
+    align-content:start;
+  }
+  .row-class .grid2{
+    display:grid; grid-template-columns: 1fr 200px; gap:var(--s-5); align-items:start;
+  }
+  .pf-field label{
+    display:block; font-family:var(--f-heading);
+    font-size:var(--t-xs); letter-spacing:.4em; color:var(--paper-700); margin-bottom:6px;
+  }
+  .select{position:relative}
+  .select select{
+    appearance:none; -webkit-appearance:none; width:100%;
+    background:rgba(255,255,255,.4);
+    border:1px solid var(--paper-300);
+    border-radius:var(--r-sm);
+    padding:10px 36px 10px 12px;
+    font-family:var(--f-heading); font-size:var(--t-lg); font-weight:500;
+    color:var(--paper-900); outline:none; cursor:pointer;
+  }
+  .select::after{
+    content:"▾"; position:absolute; right:12px; top:50%; transform:translateY(-50%);
+    color:var(--paper-700); pointer-events:none;
+  }
+  .class-tag{
+    display:inline-block; margin-right:6px;
+    font-family:var(--f-mono); font-size:10px; letter-spacing:.1em;
+    padding:1px 5px; border-radius:2px;
+    color:var(--shu); border:1px solid var(--shu);
+  }
+  .level-control{
+    display:flex; align-items:stretch;
+    border:1px solid var(--paper-300);
+    border-radius:var(--r-sm);
+    background:rgba(255,255,255,.4);
+    overflow:hidden;
+  }
+  .level-control button{
+    width:36px; background:transparent; border:0;
+    font-family:var(--f-mono); font-size:var(--t-lg); color:var(--paper-700);
+    cursor:pointer;
+  }
+  .level-control button:hover{background:rgba(0,0,0,.05); color:var(--paper-900)}
+  .level-control input{
+    flex:1; background:transparent; border:0; text-align:center;
+    font-family:var(--f-mono); font-size:var(--t-2xl); font-weight:700;
+    color:var(--paper-900); width:60px; outline:none;
+  }
+  .dice-btn{
+    width:100%; padding:10px 14px;
+    background:var(--paper-900); color:var(--paper-50);
+    border:0; border-radius:var(--r-sm);
+    font-family:var(--f-heading); font-size:var(--t-md); font-weight:500;
+    letter-spacing:.3em; cursor:pointer; height:46px;
+    display:flex; align-items:center; justify-content:center; gap:10px;
+  }
+  .dice-btn:hover{background:var(--shu)}
+  .dice-btn .die{
+    width:14px;height:14px; border:1.5px solid currentColor; border-radius:2px;
+    position:relative;
+  }
+  .dice-btn .die::before, .dice-btn .die::after{
+    content:""; position:absolute; width:3px;height:3px;border-radius:50%;background:currentColor;
+  }
+  .dice-btn .die::before{top:2px;left:2px}
+  .dice-btn .die::after{bottom:2px;right:2px}
+
+  /* DIVIDER */
+  .ritual-divider{
+    margin:var(--s-8) 0 var(--s-5);
+    display:flex; align-items:center; gap:var(--s-3);
+    color:var(--paper-700);
+    font-family:var(--f-heading); font-size:var(--t-xs); letter-spacing:.5em;
+    text-transform:uppercase;
+  }
+  .ritual-divider::before, .ritual-divider::after{
+    content:""; flex:1; height:1px;
+    background:linear-gradient(90deg, transparent, var(--paper-300), transparent);
+  }
+  .ritual-divider .glyph{color:var(--shu); font-size:var(--t-md); letter-spacing:0; font-weight:700}
+
+  /* ATTRIBUTES — slider + number */
+  .attrs{display:grid; grid-template-columns:1fr 1fr; gap:var(--s-5) var(--s-8)}
+  .attr{
+    display:grid; grid-template-columns:60px 1fr 50px;
+    gap:14px; align-items:center;
+  }
+  .attr .nm{
+    font-family:var(--f-heading); font-weight:700; font-size:var(--t-lg);
+    color:var(--paper-800); letter-spacing:.1em;
+  }
+  .attr .nm small{
+    display:block; font-family:var(--f-mono); font-size:9px;
+    color:var(--paper-700); letter-spacing:.2em; font-weight:400; margin-top:2px;
+  }
+  .slider{
+    position:relative; height:24px;
+    display:flex; align-items:center;
+  }
+  .slider .track{
+    position:absolute; left:0; right:0; height:2px;
+    background:var(--paper-300); border-radius:1px;
+  }
+  .slider .ticks{
+    position:absolute; left:0; right:0; height:6px; top:50%;
+    transform:translateY(-50%);
+    display:flex; justify-content:space-between;
+  }
+  .slider .ticks i{width:1px; height:6px; background:var(--paper-300); border-radius:1px}
+  .slider .fill{
+    position:absolute; left:0; height:2px;
+    background:var(--paper-900); border-radius:1px;
+  }
+  .slider .thumb{
+    position:absolute;
+    width:14px;height:14px; border-radius:50%;
+    background:var(--paper-50); border:1.5px solid var(--paper-900);
+    transform:translate(-50%, 0); top:50%; margin-top:-8px;
+    box-shadow:0 1px 2px rgba(0,0,0,.25);
+    cursor:grab;
+  }
+  .slider .thumb.shu{border-color:var(--shu)}
+  .attr .num{
+    font-family:var(--f-mono); font-size:var(--t-2xl); font-weight:700;
+    color:var(--paper-900); text-align:right; line-height:1;
+  }
+  .attr .num small{font-size:11px; color:var(--paper-700); font-weight:500}
+
+  /* elements row */
+  .elem-row{
+    margin-top:var(--s-6);
+    display:grid; grid-template-columns:auto repeat(5,1fr); gap:var(--s-3);
+    align-items:center;
+  }
+  .elem-row > .label{
+    font-family:var(--f-heading); font-size:var(--t-xs); letter-spacing:.5em;
+    color:var(--paper-700); text-transform:uppercase;
+  }
+  .elem{
+    position:relative;
+    display:flex; align-items:center; gap:10px;
+    padding:8px 12px;
+    background:rgba(255,255,255,.35);
+    border:1px solid var(--paper-300);
+    border-radius:var(--r-sm);
+  }
+  .elem .gl{
+    font-family:var(--f-heading); font-weight:700; font-size:var(--t-lg);
+    color:var(--paper-800);
+  }
+  .elem .v{
+    flex:1; text-align:right;
+    font-family:var(--f-mono); font-size:var(--t-lg); font-weight:700; color:var(--paper-900);
+  }
+  .elem.active{background:var(--shu); border-color:var(--shu)}
+  .elem.active .gl, .elem.active .v{color:#fff}
+
+  /* ============================================================ */
+  /* SELECTED SKILL DETAIL (under attributes, in card)              */
+  /* ============================================================ */
+  .sk-detail{
+    margin-top:var(--s-6);
+    background:rgba(255,255,255,.45);
+    border:1px solid var(--paper-300);
+    border-radius:var(--r-md);
+    padding:var(--s-5) var(--s-6);
+    position:relative;
+  }
+  .sk-detail .pin{
+    position:absolute; top:-1px; left:24px;
+    background:var(--shu); color:#fff;
+    font-family:var(--f-heading); font-size:10px; letter-spacing:.3em;
+    padding:4px 10px;
+    border-bottom-left-radius:2px; border-bottom-right-radius:2px;
+  }
+  .sk-detail .head{
+    display:flex; justify-content:space-between; align-items:flex-end;
+    border-bottom:1px solid var(--paper-300);
+    padding-bottom:var(--s-3);
+    margin-bottom:var(--s-3);
+    margin-top:6px;
+  }
+  .sk-detail .nm{
+    font-family:var(--f-heading); font-weight:700; font-size:var(--t-2xl);
+    color:var(--paper-900); letter-spacing:.05em;
+  }
+  .sk-detail .nm .yomi{
+    display:block; font-family:var(--f-body); font-size:var(--t-xs);
+    color:var(--paper-700); letter-spacing:.2em; margin-top:2px; font-weight:400;
+  }
+  .sk-detail .badges{
+    display:flex; gap:6px; align-items:center;
+  }
+  .sk-badge{
+    font-family:var(--f-mono); font-size:10px; letter-spacing:.15em;
+    padding:3px 8px; border:1px solid var(--paper-700); color:var(--paper-700);
+    border-radius:2px;
+  }
+  .sk-badge.shu{color:var(--shu); border-color:var(--shu)}
+  .sk-detail .grid{
+    display:grid; grid-template-columns:repeat(3,1fr); gap:var(--s-4);
+    margin-bottom:var(--s-3);
+  }
+  .sk-cell .k{
+    font-family:var(--f-heading); font-size:var(--t-xs); letter-spacing:.4em;
+    color:var(--paper-700); text-transform:uppercase; margin-bottom:3px;
+  }
+  .sk-cell .v{
+    font-family:var(--f-mono); font-size:var(--t-md); color:var(--paper-900); font-weight:500;
+  }
+  .sk-cell .v .shu{color:var(--shu); font-weight:700}
+  .sk-effect{
+    font-family:var(--f-body); font-size:var(--t-md); line-height:1.7;
+    color:var(--paper-800);
+  }
+  .sk-tags{
+    margin-top:var(--s-3);
+    display:flex; gap:6px; flex-wrap:wrap;
+  }
+  .sk-tag{
+    font-family:var(--f-mono); font-size:10px;
+    color:var(--paper-700);
+    padding:2px 7px; background:rgba(0,0,0,.04); border-radius:999px;
+    letter-spacing:.1em;
+  }
+
+  /* selected skill mini-list (chips of equipped skills) */
+  .equipped-strip{
+    margin-top:var(--s-3);
+    display:flex; gap:6px; flex-wrap:wrap;
+  }
+  .eq-chip{
+    display:inline-flex; align-items:center; gap:6px;
+    padding:5px 9px; background:rgba(0,0,0,.03);
+    border:1px dashed var(--paper-300);
+    border-radius:999px;
+    font-family:var(--f-heading); font-size:var(--t-xs); color:var(--paper-700);
+    cursor:pointer;
+  }
+  .eq-chip.on{
+    background:var(--paper-900); color:var(--paper-50); border-style:solid; border-color:var(--paper-900);
+  }
+  .eq-chip .x{font-family:var(--f-mono); font-size:9px; opacity:.6}
+
+  /* ============================================================ */
+  /* RIGHT — derived dashboard                                     */
+  /* ============================================================ */
+  .right-head{
+    display:flex; justify-content:space-between; align-items:flex-end;
+    margin-bottom:var(--s-5);
+  }
+  .right-head h2{
+    margin:0; font-family:var(--f-heading); font-size:var(--t-xl); font-weight:500;
+    letter-spacing:.4em; color:var(--ink-100);
+  }
+  .right-head .auto{
+    font-family:var(--f-mono); font-size:10px; letter-spacing:.2em; color:var(--ink-300);
+    border:1px solid var(--ink-500); padding:3px 8px; border-radius:999px;
+  }
+  .right-head .auto .pulse{
+    display:inline-block; width:6px;height:6px; background:var(--gold); border-radius:50%;
+    margin-right:6px; box-shadow:0 0 8px var(--gold);
+    animation:pulse 2s infinite;
+  }
+
+  /* big-number HP/TP cards */
+  .vital{
+    background:linear-gradient(180deg, #1c1925, #14121b);
+    border:1px solid var(--ink-500);
+    border-radius:var(--r-md);
+    padding:var(--s-5);
+    margin-bottom:var(--s-3);
+    position:relative; overflow:hidden;
+  }
+  .vital::before{
+    content:""; position:absolute; right:-30px; top:-30px;
+    width:120px; height:120px; border-radius:50%;
+    border:1px solid var(--ink-500); opacity:.4;
+  }
+  .vital-name{
+    display:flex; align-items:baseline; justify-content:space-between;
+    font-family:var(--f-heading); font-size:var(--t-md); font-weight:700;
+    letter-spacing:.4em; color:var(--ink-200); text-transform:uppercase;
+    margin-bottom:6px;
+  }
+  .vital-name .formula{
+    font-family:var(--f-mono); font-size:10px; letter-spacing:.05em;
+    color:var(--ink-300); font-weight:400; text-transform:none;
+  }
+  .vital-num{display:flex; align-items:baseline; gap:8px}
+  .vital-num .big{
+    font-family:var(--f-mono); font-weight:700; font-size:var(--t-5xl);
+    color:var(--gold); line-height:.95; letter-spacing:-.03em;
+  }
+  .vital-num .max{
+    font-family:var(--f-mono); font-size:var(--t-md); color:var(--ink-300);
+  }
+  .vital-num.tp .big{color:var(--kon); color:#7faed4}
+  .vital-bar{
+    margin-top:12px; height:3px; background:var(--ink-600); border-radius:2px; overflow:hidden;
+  }
+  .vital-bar i{display:block; height:100%}
+
+  /* combat values 4-up */
+  .combat-grid{
+    display:grid; grid-template-columns:1fr 1fr; gap:var(--s-2);
+    margin-top:var(--s-5);
+  }
+  .combat{
+    background:var(--ink-700); border:1px solid var(--ink-500);
+    border-radius:var(--r-md);
+    padding:var(--s-3) var(--s-4);
+  }
+  .combat .lbl{
+    font-family:var(--f-heading); font-size:var(--t-xs); letter-spacing:.4em;
+    color:var(--ink-200); text-transform:uppercase;
+    display:flex; justify-content:space-between;
+  }
+  .combat .lbl .roll{font-family:var(--f-mono); font-size:9px; color:var(--gold); letter-spacing:.1em}
+  .combat .v{
+    font-family:var(--f-mono); font-size:var(--t-3xl); font-weight:700;
+    color:var(--ink-100); line-height:1.1; margin-top:6px;
+  }
+  .combat .breakdown{
+    font-family:var(--f-mono); font-size:10px; color:var(--ink-300);
+    margin-top:4px; letter-spacing:.05em;
+  }
+
+  /* defense + initiative band */
+  .defense{
+    margin-top:var(--s-3);
+    background:linear-gradient(135deg, #2a1818, #15131c);
+    border:1px solid var(--shu-deep);
+    border-radius:var(--r-md);
+    padding:var(--s-4) var(--s-5);
+    display:flex; align-items:center; justify-content:space-between;
+  }
+  .defense .lbl{
+    font-family:var(--f-heading); font-size:var(--t-md); font-weight:700;
+    letter-spacing:.4em; color:var(--shu-soft);
+  }
+  .defense .v{
+    font-family:var(--f-mono); font-size:var(--t-3xl); font-weight:700; color:#fff;
+  }
+
+  /* export */
+  .export{
+    margin-top:var(--s-6);
+    border-top:1px solid var(--ink-500);
+    padding-top:var(--s-5);
+  }
+  .btn{
+    display:flex; align-items:center; justify-content:center; gap:8px;
+    width:100%; padding:12px;
+    border-radius:var(--r-sm);
+    font-family:var(--f-heading); font-size:var(--t-md); letter-spacing:.3em;
+    cursor:pointer; border:1px solid var(--ink-400); background:var(--ink-700);
+    color:var(--ink-100); margin-bottom:var(--s-2);
+  }
+  .btn:hover{border-color:var(--gold); color:var(--gold)}
+  .btn.primary{
+    background:var(--shu); border-color:var(--shu); color:#fff;
+  }
+  .btn.primary:hover{background:var(--shu-deep); border-color:var(--shu-deep)}
+  .btn-grid{display:grid; grid-template-columns:1fr 1fr; gap:var(--s-2)}
+  .btn-sm{
+    padding:8px; font-size:var(--t-xs); letter-spacing:.2em;
+    background:transparent; border:1px solid var(--ink-500); color:var(--ink-200);
+    border-radius:var(--r-sm); cursor:pointer; font-family:var(--f-body);
+  }
+  .btn-sm:hover{border-color:var(--ink-300); color:var(--ink-100)}
+
+  /* notes */
+  .annotate{
+    margin:var(--s-8) var(--s-10) var(--s-8);
+    padding:var(--s-5);
+    background:var(--ink-700);
+    border:1px dashed var(--ink-500);
+    border-radius:var(--r-md);
+    font-family:var(--f-mono); font-size:var(--t-xs);
+    color:var(--ink-200); line-height:1.7;
+  }
+  .annotate b{color:var(--gold); font-weight:500}
+  .annotate ul{margin:6px 0 0 18px; padding:0}
+  .annotate li{margin:2px 0}
+
+  /* tokens section at bottom */
+  .tokens{padding:48px 32px 64px; max-width:1200px; margin:0 auto; color:var(--ink-100)}
+  .tk-h{font-family:var(--f-heading); font-size:20px; letter-spacing:.3em; color:var(--gold); border-bottom:1px solid var(--ink-500); padding-bottom:12px; margin-bottom:24px}
+  .tk-grid{display:grid; grid-template-columns:repeat(2,1fr); gap:32px}
+  .tk-cap{font-family:var(--f-mono); font-size:11px; letter-spacing:.3em; color:var(--ink-300); margin:18px 0 10px}
+  .swatches{display:grid; grid-template-columns:repeat(4,1fr); gap:6px; font-family:var(--f-mono); font-size:10px}
+  .swatches > div > div:first-child{height:42px; border:1px solid rgba(255,255,255,.05)}
+  .tk-list{font-family:var(--f-mono); font-size:11px; line-height:1.9; color:var(--ink-200)}
+
+</style>
+</head>
+<body>
+
+<!-- =================== TITLE BAR =================== -->
+<div class="titlebar">
+  <div class="brand">
+    <div class="moon"></div>
+    <div>
+      <div class="name">千夜月姫</div>
+      <div class="sub">Character Sheet · Console</div>
+    </div>
+  </div>
+  <div class="title-spacer"></div>
+  <div class="title-meta">
+    <span><span class="dot"></span>SAVED 14:22</span>
+    <span>SESSION <b>#03</b></span>
+    <span>LOOP <b>04 / 07</b></span>
+  </div>
+</div>
+
+<!-- =================== ROSTER TABS =================== -->
+<div class="tabs">
+  <div class="tab"><span class="seal">朱</span><span class="nm">朱鷺宮 縁</span><span class="lv">L4</span><span class="x">×</span></div>
+  <div class="tab active"><span class="seal">久</span><span class="nm">久遠寺 透</span><span class="lv">L6</span><span class="x">×</span></div>
+  <div class="tab"><span class="seal">霧</span><span class="nm">霧宮 茜</span><span class="lv">L3</span><span class="x">×</span></div>
+  <div class="tab"><span class="seal">無</span><span class="nm">名無し</span><span class="lv">L1</span><span class="x">×</span></div>
+  <div class="tab add">＋ 新規</div>
+  <div class="tabs-end">
+    <span><span class="kbd">⌘1-9</span> 切換</span>
+    <span><span class="kbd">⌘N</span> 新規</span>
+    <span><span class="kbd">⌘P</span> 列印</span>
+  </div>
+</div>
+
+<!-- =================== APP =================== -->
+<div class="app">
+
+  <!-- LEFT: skill picker checklist -->
+  <aside class="col left">
+    <div class="sec-label">
+      <span class="glyph">特技</span><span>skill picker</span><span class="rule"></span><span class="ord">4 / 4</span>
+    </div>
+
+    <div class="skp-search"><input placeholder="検索 / 篩選 — 名稱・效果・分類" /></div>
+
+    <div class="skp-filters">
+      <span class="skp-chip on">已習得 4</span>
+      <span class="skp-chip">古神道 12</span>
+      <span class="skp-chip">共通 28</span>
+      <span class="skp-chip">主動</span>
+      <span class="skp-chip">反應</span>
+      <span class="skp-chip">常時</span>
+    </div>
+
+    <div class="skp-list">
+      <div class="skp-group-h">古神道 — 上位 <span class="ct">12</span></div>
+
+      <div class="skp-item selected">
+        <div class="check on"></div>
+        <div>
+          <div class="nm">月讀の眼</div>
+          <div class="meta">常時 · Lv1+</div>
+        </div>
+        <div class="skp-cost">— —</div>
+      </div>
+
+      <div class="skp-item">
+        <div class="check on"></div>
+        <div>
+          <div class="nm">穢れ祓い</div>
+          <div class="meta">主動 · 理智5+</div>
+        </div>
+        <div class="skp-cost">TP 4</div>
+      </div>
+
+      <div class="skp-item">
+        <div class="check on"></div>
+        <div>
+          <div class="nm">繰り返しの記憶</div>
+          <div class="meta">反應 · 記憶ON</div>
+        </div>
+        <div class="skp-cost">TP 6</div>
+      </div>
+
+      <div class="skp-item">
+        <div class="check on"></div>
+        <div>
+          <div class="nm">鳥居の境界</div>
+          <div class="meta">主動 · Lv4+</div>
+        </div>
+        <div class="skp-cost">TP 8 · HP 2</div>
+      </div>
+
+      <div class="skp-item">
+        <div class="check"></div>
+        <div>
+          <div class="nm">護符投擲</div>
+          <div class="meta">主動 · Lv1+</div>
+        </div>
+        <div class="skp-cost">TP 3</div>
+      </div>
+
+      <div class="skp-item">
+        <div class="check"></div>
+        <div>
+          <div class="nm">夢見の素養</div>
+          <div class="meta">常時 · 意志4+</div>
+        </div>
+        <div class="skp-cost">— —</div>
+      </div>
+
+      <div class="skp-item">
+        <div class="check"></div>
+        <div>
+          <div class="nm">禊の言霊</div>
+          <div class="meta">主動 · Lv2+</div>
+        </div>
+        <div class="skp-cost">TP 5</div>
+      </div>
+
+      <div class="skp-group-h">共通 — 全職 <span class="ct">28</span></div>
+
+      <div class="skp-item">
+        <div class="check"></div>
+        <div>
+          <div class="nm">気合い溜め</div>
+          <div class="meta">主動 · 共通</div>
+        </div>
+        <div class="skp-cost">TP 0</div>
+      </div>
+
+      <div class="skp-item">
+        <div class="check"></div>
+        <div>
+          <div class="nm">致命の見切り</div>
+          <div class="meta">反應 · 知覺6+</div>
+        </div>
+        <div class="skp-cost">TP 4</div>
+      </div>
+    </div>
+
+    <div class="skp-foot">
+      <span>選擇上限　<b>4 / 4</b>　古神道 Lv6</span>
+      <span>+ 自訂</span>
+    </div>
+  </aside>
+
+
+  <!-- CENTER: character card -->
+  <main class="col center">
+    <div class="sec-label">
+      <span class="glyph">本紙</span><span>character sheet</span><span class="rule"></span><span class="ord">02 / 04 · 久遠寺 透</span>
+    </div>
+
+    <article class="card">
+      <span class="watermark">PC・02・KUONJI・TOORU・古神道・LV6</span>
+
+      <div class="card-head">
+        <div class="field-name">
+          <label>名 — name</label>
+          <input value="久遠寺 透" />
+        </div>
+        <div class="field-yomi">
+          <label>讀み — yomi</label>
+          <input value="クオンジ・トオル" />
+        </div>
+      </div>
+
+      <div class="row-class">
+        <div class="head-line">
+          <span class="lbl">級別 — class · 多重</span>
+          <span class="total">合計 <b>6</b> Lv　·　槽 <b>2 / 4</b></span>
+        </div>
+
+        <div class="grid2">
+          <div>
+            <div class="slot-stack">
+              <div class="slot primary">
+                <div class="ord">主</div>
+                <div class="pf-select">
+                  <select>
+                    <optgroup label="基本職">
+                      <option>狩人</option><option>劍士</option><option>狩獵者</option>
+                      <option>代行者</option><option>武鬥家</option>
+                      <option>魔術師</option><option>超能力者</option>
+                    </optgroup>
+                    <optgroup label="進階職">
+                      <option selected>古神道</option><option>異端</option><option>左道</option>
+                      <option>策士</option><option>忍者</option>
+                      <option>無名劍</option><option>風水士</option>
+                    </optgroup>
+                  </select>
+                  <div class="tag-line"><span class="adv">進階</span> · ADVANCED · RITUALIST</div>
+                </div>
+                <div class="lvl">
+                  <button>−</button>
+                  <input value="4" />
+                  <button>＋</button>
+                </div>
+                <button class="rm" title="移除">×</button>
+              </div>
+
+              <div class="slot">
+                <div class="ord">副</div>
+                <div class="pf-select">
+                  <select>
+                    <optgroup label="基本職">
+                      <option>狩人</option><option>劍士</option><option>狩獵者</option>
+                      <option>代行者</option><option>武鬥家</option>
+                      <option selected>魔術師</option><option>超能力者</option>
+                    </optgroup>
+                    <optgroup label="進階職">
+                      <option>古神道</option><option>異端</option><option>左道</option>
+                      <option>策士</option><option>忍者</option>
+                      <option>無名劍</option><option>風水士</option>
+                    </optgroup>
+                  </select>
+                  <div class="tag-line"><span class="basic">基本</span> · BASIC · CASTER</div>
+                </div>
+                <div class="lvl">
+                  <button>−</button>
+                  <input value="2" />
+                  <button>＋</button>
+                </div>
+                <button class="rm" title="移除">×</button>
+              </div>
+            </div>
+
+            <button class="slot-add">＋ 加入級別<span class="hint">最多 4 槽　·　特殊狀況</span></button>
+          </div>
+
+          <div class="rail">
+            <button class="dice-btn"><span class="die"></span>擲骰起手 1D6+3</button>
+            <div style="font-family:var(--f-mono); font-size:10px; line-height:1.7; color:var(--paper-700); letter-spacing:.05em">
+              · 一般 1〜3 槽<br>
+              · 4 槽僅限特殊劇本<br>
+              · 合計等級用於派生計算<br>
+              · 主級別決定特技池
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ATTRIBUTES — sliders -->
+      <div class="ritual-divider">
+        <span class="glyph">四</span><span>attributes</span>
+      </div>
+
+      <div class="attrs">
+        <div class="attr">
+          <div class="nm">體力<small>TAIRYOKU</small></div>
+          <div class="slider">
+            <span class="track"></span>
+            <span class="ticks">
+              <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+            </span>
+            <span class="fill" style="width:65%"></span>
+            <span class="thumb shu" style="left:65%"></span>
+          </div>
+          <div class="num">7<small>/10</small></div>
+        </div>
+
+        <div class="attr">
+          <div class="nm">知覺<small>CHIKAKU</small></div>
+          <div class="slider">
+            <span class="track"></span>
+            <span class="ticks"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span>
+            <span class="fill" style="width:45%"></span>
+            <span class="thumb" style="left:45%"></span>
+          </div>
+          <div class="num">5<small>/10</small></div>
+        </div>
+
+        <div class="attr">
+          <div class="nm">理智<small>RICHI</small></div>
+          <div class="slider">
+            <span class="track"></span>
+            <span class="ticks"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span>
+            <span class="fill" style="width:75%"></span>
+            <span class="thumb shu" style="left:75%"></span>
+          </div>
+          <div class="num">8<small>/10</small></div>
+        </div>
+
+        <div class="attr">
+          <div class="nm">意志<small>ISHI</small></div>
+          <div class="slider">
+            <span class="track"></span>
+            <span class="ticks"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span>
+            <span class="fill" style="width:55%"></span>
+            <span class="thumb" style="left:55%"></span>
+          </div>
+          <div class="num">6<small>/10</small></div>
+        </div>
+      </div>
+
+      <!-- ELEMENTS -->
+      <div class="ritual-divider">
+        <span class="glyph">五</span><span>elements</span>
+      </div>
+      <div class="elem-row">
+        <div class="label">五大</div>
+        <div class="elem"><span class="gl">地</span><span class="v">2</span></div>
+        <div class="elem"><span class="gl">水</span><span class="v">3</span></div>
+        <div class="elem active"><span class="gl">火</span><span class="v">5</span></div>
+        <div class="elem"><span class="gl">風</span><span class="v">1</span></div>
+        <div class="elem"><span class="gl">空</span><span class="v">4</span></div>
+      </div>
+
+      <!-- SELECTED SKILL DETAIL -->
+      <div class="ritual-divider">
+        <span class="glyph">特</span><span>technique · detail</span>
+      </div>
+
+      <div class="equipped-strip">
+        <span class="eq-chip on">月讀の眼 <span class="x">●</span></span>
+        <span class="eq-chip">穢れ祓い</span>
+        <span class="eq-chip">繰り返しの記憶</span>
+        <span class="eq-chip">鳥居の境界</span>
+      </div>
+
+      <div class="sk-detail">
+        <span class="pin">SELECTED</span>
+        <div class="head">
+          <div class="nm">月讀の眼<span class="yomi">TSUKUYOMI NO ME</span></div>
+          <div class="badges">
+            <span class="sk-badge shu">常時</span>
+            <span class="sk-badge">古神道 Lv1+</span>
+          </div>
+        </div>
+
+        <div class="grid">
+          <div class="sk-cell">
+            <div class="k">分類</div>
+            <div class="v">常時 / passive</div>
+          </div>
+          <div class="sk-cell">
+            <div class="k">代價</div>
+            <div class="v"><span class="shu">— —</span> 無</div>
+          </div>
+          <div class="sk-cell">
+            <div class="k">取得限制</div>
+            <div class="v">古神道 Lv 1+</div>
+          </div>
+        </div>
+
+        <div class="sk-effect">
+          場面開始時，可指定一名 NPC，記錄其所在區位。本場面內，對該對象進行的所有判定 +1。<br>
+          若該對象於 loop 結束時尚存活，則在下一 loop 開始時，本特技可指定其於前一 loop 中的最後位置。
+        </div>
+
+        <div class="sk-tags">
+          <span class="sk-tag">#場面開始</span>
+          <span class="sk-tag">#指定対象</span>
+          <span class="sk-tag">#loop連動</span>
+          <span class="sk-tag">#判定+1</span>
+        </div>
+      </div>
+    </article>
+
+    <div class="annotate">
+      <b>// 設計筆記 v2</b>
+      <ul>
+        <li>角色清單改為頂部分頁標籤（瀏覽器分頁式），左欄專注於特技清單。</li>
+        <li>屬性使用滑桿 + 數字，搭配 10 段 tick；朱色 thumb 表示「該屬性與所選級別共鳴」。</li>
+        <li>左側勾選清單 + 中央詳情面板：選中項目以朱色帶 + SELECTED pin 強調。已選裝備以 chip 排成長條，方便快速切換顯示哪一張。</li>
+        <li>右欄 HP/TP 改為大號數字儀表板（金 / 紺）；近戰・射擊・精神・行動 4 戰鬥值 2×2 排列。</li>
+        <li>下一輪：劇本特化欄位 collapsible / 匯出對話框 / 列印 A4。</li>
+      </ul>
+    </div>
+  </main>
+
+
+  <!-- RIGHT: derived dashboard -->
+  <aside class="col right">
+    <div class="sec-label">
+      <span class="glyph">派生</span><span>derived</span><span class="rule"></span><span class="ord">live</span>
+    </div>
+
+    <div class="right-head">
+      <h2>戰闘値</h2>
+      <span class="auto"><span class="pulse"></span>自動算定</span>
+    </div>
+
+    <div class="vital">
+      <div class="vital-name"><span>HP — 生命</span><span class="formula">体力×6 + Lv×2</span></div>
+      <div class="vital-num">
+        <span class="big">54</span>
+        <span class="max">/ 54 MAX</span>
+      </div>
+      <div class="vital-bar"><i style="width:100%; background:linear-gradient(90deg,var(--shu),var(--gold))"></i></div>
+    </div>
+
+    <div class="vital">
+      <div class="vital-name"><span>TP — 気力</span><span class="formula">理智×4 + 意志×2 + Lv</span></div>
+      <div class="vital-num tp">
+        <span class="big">50</span>
+        <span class="max">/ 50 MAX</span>
+      </div>
+      <div class="vital-bar"><i style="width:88%; background:linear-gradient(90deg,#2a3a52,#7faed4)"></i></div>
+    </div>
+
+    <div class="combat-grid">
+      <div class="combat">
+        <div class="lbl"><span>近戰</span><span class="roll">+1d</span></div>
+        <div class="v">11</div>
+        <div class="breakdown">体7 + Lv/2 + 火1</div>
+      </div>
+      <div class="combat">
+        <div class="lbl"><span>射擊</span><span class="roll">+1d</span></div>
+        <div class="v">9</div>
+        <div class="breakdown">知5 + Lv/2 + 風1</div>
+      </div>
+      <div class="combat">
+        <div class="lbl"><span>精神</span><span class="roll">+1d</span></div>
+        <div class="v">14</div>
+        <div class="breakdown">理8 + Lv/2 + 空3</div>
+      </div>
+      <div class="combat">
+        <div class="lbl"><span>行動</span><span class="roll">+1d</span></div>
+        <div class="v">10</div>
+        <div class="breakdown">意6 + Lv/2 + 風1</div>
+      </div>
+    </div>
+
+    <div class="defense">
+      <span class="lbl">防禦點</span>
+      <span class="v">13</span>
+    </div>
+
+    <div class="export">
+      <button class="btn primary">⎙ 匯出 / 列印</button>
+      <div class="btn-grid" style="margin-top:8px">
+        <button class="btn-sm">Markdown</button>
+        <button class="btn-sm">BBCode</button>
+        <button class="btn-sm">列印 A4</button>
+        <button class="btn-sm">ccfolia</button>
+      </div>
+      <div style="margin-top:14px; font-family:var(--f-mono); font-size:10px; color:var(--ink-300); letter-spacing:.05em; line-height:1.6">
+        最後匯出 14:08 · ccfolia.json<br>
+        資料保存於 localStorage · 不上傳
+      </div>
+    </div>
+
+  </aside>
+</div>
+
+<!-- ============= TOKENS ============= -->
+<section class="tokens">
+  <div class="tk-h">DESIGN TOKENS — v2</div>
+
+  <div class="tk-grid">
+    <div>
+      <div class="tk-cap">// COLORS — INK</div>
+      <div class="swatches">
+        <div><div style="background:#0b0a0e"></div>ink-900<br>#0B0A0E</div>
+        <div><div style="background:#121118"></div>ink-800<br>#121118</div>
+        <div><div style="background:#1a1820"></div>ink-700<br>#1A1820</div>
+        <div><div style="background:#231f29"></div>ink-600<br>#231F29</div>
+        <div><div style="background:#2c2834"></div>ink-500<br>#2C2834</div>
+        <div><div style="background:#3d3848"></div>ink-400<br>#3D3848</div>
+        <div><div style="background:#6a6577"></div>ink-300<br>#6A6577</div>
+        <div><div style="background:#a39ead"></div>ink-200<br>#A39EAD</div>
+      </div>
+
+      <div class="tk-cap">// COLORS — PAPER</div>
+      <div class="swatches">
+        <div><div style="background:#f5efe1"></div>paper-50<br>#F5EFE1</div>
+        <div><div style="background:#ebe3cf"></div>paper-100<br>#EBE3CF</div>
+        <div><div style="background:#d8ccae"></div>paper-200<br>#D8CCAE</div>
+        <div><div style="background:#b6a682"></div>paper-300<br>#B6A682</div>
+        <div><div style="background:#564b35"></div>paper-700<br>#564B35</div>
+        <div><div style="background:#3a3324"></div>paper-800<br>#3A3324</div>
+        <div><div style="background:#1f1c14"></div>paper-900<br>#1F1C14</div>
+      </div>
+
+      <div class="tk-cap">// COLORS — ACCENT</div>
+      <div class="swatches" style="grid-template-columns:repeat(6,1fr)">
+        <div><div style="background:#7a1f17"></div>shu-deep<br>#7A1F17</div>
+        <div><div style="background:#b0382b"></div>shu<br>#B0382B</div>
+        <div><div style="background:#e57364"></div>shu-soft<br>#E57364</div>
+        <div><div style="background:#c8a96a"></div>gold<br>#C8A96A</div>
+        <div><div style="background:#e9d8a8"></div>gold-soft<br>#E9D8A8</div>
+        <div><div style="background:#2a3a52"></div>kon<br>#2A3A52</div>
+      </div>
+    </div>
+
+    <div>
+      <div class="tk-cap">// TYPE — FAMILIES</div>
+      <div style="display:grid; gap:10px">
+        <div>
+          <span style="font-family:var(--f-heading); font-size:24px; color:var(--gold); font-weight:700">千夜月姫 ・ 明朝體</span><br>
+          <code style="font-family:var(--f-mono); font-size:11px; color:var(--ink-300)">--f-heading: "Noto Serif JP", "Songti SC", "Yu Mincho", serif</code>
+        </div>
+        <div>
+          <span style="font-family:var(--f-body); font-size:14px;">本文 ・ 黑體内文 — Noto Sans JP</span><br>
+          <code style="font-family:var(--f-mono); font-size:11px; color:var(--ink-300)">--f-body: "Noto Sans JP", "Inter", "Hiragino Sans", sans-serif</code>
+        </div>
+        <div>
+          <span style="font-family:var(--f-mono); font-size:13px;">MONO 0123456789 +1d6 / TP 4</span><br>
+          <code style="font-family:var(--f-mono); font-size:11px; color:var(--ink-300)">--f-mono: "JetBrains Mono", "SF Mono", monospace</code>
+        </div>
+      </div>
+
+      <div class="tk-cap">// TYPE — SCALE</div>
+      <div class="tk-list">
+        --t-xs   11px ・ caption / kbd<br>
+        --t-sm   12px ・ secondary<br>
+        --t-base 13px ・ body default<br>
+        --t-md   14px ・ body large / button<br>
+        --t-lg   16px ・ small heading<br>
+        --t-xl   20px ・ section h2<br>
+        --t-2xl  26px ・ skill name<br>
+        --t-3xl  34px ・ char name / combat<br>
+        --t-4xl  48px ・ —<br>
+        --t-5xl  64px ・ HP / TP big number<br>
+      </div>
+
+      <div class="tk-cap">// SPACING — 4PX BASE</div>
+      <div class="tk-list">
+        --s-1 4 ・ --s-2 8 ・ --s-3 12 ・ --s-4 16 ・ --s-5 20<br>
+        --s-6 24 ・ --s-8 32 ・ --s-10 40 ・ --s-12 48
+      </div>
+
+      <div class="tk-cap">// RADII / SHADOWS</div>
+      <div class="tk-list">
+        --r-sm 2px ・ --r-md 4px ・ --r-lg 8px<br>
+        --shadow-sm  0 1px 0 rgba(0,0,0,.4), 0 1px 2px rgba(0,0,0,.3)<br>
+        --shadow-md  0 2px 6px rgba(0,0,0,.45), 0 8px 24px rgba(0,0,0,.35)<br>
+        --shadow-card  0 1px 0 rgba(255,255,255,.04) inset, 0 12px 40px rgba(0,0,0,.55), 0 2px 0 rgba(0,0,0,.4)
+      </div>
+    </div>
+  </div>
+</section>
+
+</body>
+</html>

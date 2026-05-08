@@ -1,55 +1,137 @@
 /**
- * 技能系統：左欄 skill picker + 中欄 equipped-strip + sk-detail
- * 一個模組同時管理三個 root，因為它們共用 highlighted skill 狀態
+ * 技能系統 v4：左欄 picker（2 行 effect 預覽 / 點擊展開 / 看選分離 / 分類色 pill）
+ *                + 中欄 equipped-strip + sk-detail
+ *
+ * 三個 root 共用 highlightedKey + expandedKey 狀態。
  */
 
 import { escapeHtml, getActiveCard } from '../helpers.js';
-import { loadLevel, loadCommonSkills } from '../data-loader.js';
+import { loadLevel, loadCommonSkills, loadMeta } from '../data-loader.js';
+import { abilityTotal } from '../derive.js';
 
 const COMMON_PSEUDO_ID = '__common__';
-const FILTER_CATEGORIES = ['主動', '反應', '常時'];
+const SORT_MODES = ['級別', '分類', '代價'];
+const FILTER_CATEGORIES = ['主動', '反應', '常時', '特殊'];
 
 function skillKey(classId, name) {
   return `${classId || COMMON_PSEUDO_ID}::${name}`;
 }
 
+function categoryGroup(cat) {
+  if (!cat) return '特殊';
+  // 常時 = passive
+  if (cat.includes('常時') || cat.includes('常时')) return '常時';
+  // 中斷 = reaction（千夜月姬以「中斷」表示打斷對方行動的反應技）
+  if (cat.includes('中斷') || cat.includes('反應') || cat.includes('反应')) return '反應';
+  // 主動：通用/準備/進攻/攻擊類型 等都歸主動
+  if (cat.includes('主動')
+   || cat.includes('通用')
+   || cat.includes('準備')
+   || cat.includes('進攻')
+   || cat.includes('攻擊')
+   || cat.includes('通常')) return '主動';
+  return '特殊';
+}
+
+function costGroup(cost) {
+  if (!cost || cost === '—' || cost === '-' || cost === '無') return '無代價';
+  const hasTp = /TP/i.test(cost);
+  const hasHp = /HP|代價傷害/i.test(cost);
+  if (hasTp && hasHp) return '混合';
+  if (hasHp) return 'HP';
+  if (hasTp) return 'TP';
+  return '其他';
+}
+
+const ABILITY_NAME_MAP = {
+  '體力': 'physical', '体力': 'physical',
+  '知覺': 'perception', '知觉': 'perception',
+  '理智': 'reason',
+  '意志': 'will',
+};
+
+/**
+ * 嘗試把 limit 文字拆成 chip 段，並判定每段是否符合
+ * 例：「古神道 Lv1+」 → { text: '古神道 Lv1+', met: 是否有 og class lv>=1 }
+ *     「理智 5+」    → { text: '理智 5+', met: physical total >= 5 }
+ */
+function evaluatePrereqs(limit, card, levelMetaById) {
+  if (!limit || limit === '無' || limit === '—' || !card) return [];
+  // 用「,／、 」拆段
+  const parts = limit.split(/[,、，;；]\s*|\s\s+/).map(s => s.trim()).filter(Boolean);
+  return parts.map(text => {
+    let met = null;  // null = 無法判定，true/false = 結果
+
+    // ability check: 體力 5+ / 知覺 6+ / etc.
+    const abMatch = text.match(/^(體力|体力|知覺|知觉|理智|意志)\s*(\d+)\+?$/);
+    if (abMatch) {
+      const k = ABILITY_NAME_MAP[abMatch[1]];
+      const need = Number(abMatch[2]);
+      const total = abilityTotal(card.stats.abilities[k]);
+      met = total >= need;
+    }
+
+    // class level check: <name> Lv<N>+ — 根據 levelMetaById 比對
+    if (met === null) {
+      const lvMatch = text.match(/^(\S+?)\s*Lv?\s*(\d+)\+?$/i);
+      if (lvMatch) {
+        const className = lvMatch[1];
+        const need = Number(lvMatch[2]);
+        // 找 class by name
+        const cls = card.classes.find(c => (c.name === className) || (c.id === className));
+        met = !!cls && (cls.level >= need);
+      }
+    }
+
+    return { text, met };
+  });
+}
+
 export async function mountSkills({ pickerEl, equippedEl, detailEl }, store) {
   const commonData = await loadCommonSkills();
+  const meta = await loadMeta();
   const levelCache = new Map();
+  const levelMetaById = new Map(meta.levels.map(l => [l.id, l]));
+
   let highlightedKey = null;
-  const filters = { search: '', equippedOnly: false, categories: new Set() };
+  const expanded = new Set();
+
+  const filters = {
+    search: '',
+    equippedOnly: false,
+    unmetOnly: false,
+    categories: new Set(),
+    sortMode: '級別',
+  };
 
   async function getLevel(classId) {
     if (!levelCache.has(classId)) levelCache.set(classId, await loadLevel(classId));
     return levelCache.get(classId);
   }
 
-  async function buildGroups(card) {
-    const groups = [];
-    if (!card) return groups;
+  async function gatherAllSkills(card) {
+    if (!card) return [];
+    const all = [];
     for (const cls of card.classes) {
       try {
         const data = await getLevel(cls.id);
-        groups.push({
-          title: `${data.name} — ${cls.isPrimary ? '主級別' : '副級別'}`,
-          classId: cls.id,
-          skills: [
-            ...data.skills.general.map(s => ({ ...s, classId: cls.id, source: 'general' })),
-            ...data.skills.extra.map(s => ({ ...s, classId: cls.id, source: 'extra' })),
-          ],
-        });
+        const cm = levelMetaById.get(cls.id) || {};
+        for (const s of data.skills.general) {
+          all.push({ ...s, classId: cls.id, className: data.name || cls.name, source: 'general',
+                     classRole: cls.isPrimary ? 'primary' : 'sub', classMeta: cm });
+        }
+        for (const s of data.skills.extra) {
+          all.push({ ...s, classId: cls.id, className: data.name || cls.name, source: 'extra',
+                     classRole: cls.isPrimary ? 'primary' : 'sub', classMeta: cm });
+        }
       } catch (e) {
         console.warn(`載入級別 ${cls.id} 失敗`, e);
       }
     }
-    if (commonData.skills.length > 0) {
-      groups.push({
-        title: '共通特技',
-        classId: COMMON_PSEUDO_ID,
-        skills: commonData.skills.map(s => ({ ...s, classId: null, source: 'common' })),
-      });
+    for (const s of commonData.skills) {
+      all.push({ ...s, classId: null, className: '共通特技', source: 'common', classRole: 'common' });
     }
-    return groups;
+    return all;
   }
 
   function isEquipped(card, key) {
@@ -57,73 +139,176 @@ export async function mountSkills({ pickerEl, equippedEl, detailEl }, store) {
   }
 
   function passesFilter(sk, card) {
-    if (filters.equippedOnly && !isEquipped(card, skillKey(sk.classId, sk.name))) return false;
+    const key = skillKey(sk.classId, sk.name);
+    if (filters.equippedOnly && !isEquipped(card, key)) return false;
     if (filters.categories.size > 0) {
-      const ok = [...filters.categories].some(c => (sk.category || '').includes(c));
-      if (!ok) return false;
+      if (!filters.categories.has(categoryGroup(sk.category))) return false;
     }
     if (filters.search) {
       const q = filters.search.toLowerCase();
-      const hay = `${sk.name} ${sk.category} ${sk.cost} ${sk.effect}`.toLowerCase();
+      const hay = `${sk.name} ${sk.category} ${sk.cost} ${sk.effect} ${sk.limit || ''}`.toLowerCase();
       if (!hay.includes(q)) return false;
+    }
+    if (filters.unmetOnly) {
+      const prereqs = evaluatePrereqs(sk.limit, card, levelMetaById);
+      const anyUnmet = prereqs.some(p => p.met === false);
+      if (!anyUnmet) return false;
     }
     return true;
   }
 
+  function buildGroups(skills) {
+    const mode = filters.sortMode;
+    if (mode === '級別') {
+      const byClass = new Map();
+      for (const s of skills) {
+        const k = s.classId || COMMON_PSEUDO_ID;
+        if (!byClass.has(k)) byClass.set(k, { title: s.className, role: s.classRole, items: [] });
+        byClass.get(k).items.push(s);
+      }
+      // 主級別 → 副級別 → 共通
+      const order = ['primary', 'sub', 'common'];
+      const groups = [];
+      for (const role of order) {
+        for (const [k, g] of byClass) {
+          if (g.role === role) groups.push({ ...g, key: k });
+        }
+      }
+      return groups;
+    }
+    if (mode === '分類') {
+      const groups = FILTER_CATEGORIES.map(cat => ({ title: cat, role: 'common', items: [], key: `cat-${cat}` }));
+      const map = new Map(groups.map(g => [g.title, g]));
+      for (const s of skills) {
+        const c = categoryGroup(s.category);
+        map.get(c)?.items.push(s);
+      }
+      return groups.filter(g => g.items.length > 0);
+    }
+    if (mode === '代價') {
+      const order = ['無代價', 'TP', 'HP', '混合', '其他'];
+      const map = new Map(order.map(o => [o, { title: o, role: 'common', items: [], key: `cost-${o}` }]));
+      for (const s of skills) {
+        const g = costGroup(s.cost);
+        map.get(g)?.items.push(s);
+      }
+      return order.map(o => map.get(o)).filter(g => g.items.length > 0);
+    }
+    return [];
+  }
+
+  function renderItemHtml(sk, card) {
+    const key = skillKey(sk.classId, sk.name);
+    const eq = isEquipped(card, key);
+    const isExp = expanded.has(key);
+    const cat = categoryGroup(sk.category);
+    const prereqs = evaluatePrereqs(sk.limit, card, levelMetaById);
+    const costNone = !sk.cost || sk.cost === '—' || sk.cost === '-' || sk.cost === '無';
+    const costHtml = costNone
+      ? `<span class="skp-cost none">— · 無代價</span>`
+      : `<span class="skp-cost"><b>${escapeHtml(sk.cost)}</b></span>`;
+
+    const prereqHtml = prereqs.length === 0
+      ? `<div class="skp-prereq"><span class="pin">前提</span><span>無</span></div>`
+      : `<div class="skp-prereq">
+          <span class="pin">前提</span>
+          ${prereqs.map((p, i) => {
+            const cls = p.met === false ? 'req-x' : (p.met === true ? 'req' : '');
+            return `${i > 0 ? '<span>·</span>' : ''}<span class="${cls}">${escapeHtml(p.text)}</span>`;
+          }).join('')}
+        </div>`;
+
+    const advHtml = (sk.secondaryCondition || sk.additionalEffect || sk.emotionReward) ? `
+      <div class="adv-grid">
+        ${sk.secondaryCondition ? `<div class="adv shu"><span class="k">二段條件</span>${escapeHtml(sk.secondaryCondition)}</div>` : ''}
+        ${sk.additionalEffect ? `<div class="adv gold"><span class="k">追加效果</span>${escapeHtml(sk.additionalEffect)}</div>` : ''}
+        ${sk.emotionReward ? `<div class="adv"><span class="k">情緒獎勵</span>${escapeHtml(sk.emotionReward)}</div>` : ''}
+      </div>` : '';
+
+    const expandHtml = `
+      <div class="skp-expand">
+        ${advHtml}
+        <div class="skp-actions">
+          <button class="skp-add-btn" data-toggle-equip>
+            <span class="ic">${eq ? '✓' : '＋'}</span>${eq ? '已習得 — 點此移除' : '習得此技能'}
+          </button>
+          <button class="skp-link-btn" data-link-detail>⤴ 中央詳情</button>
+        </div>
+      </div>`;
+
+    const classes = ['skp-item'];
+    if (eq) classes.push('equipped');
+    if (isExp) classes.push('expanded');
+
+    return `<div class="${classes.join(' ')}" data-key="${escapeHtml(key)}" data-classid="${sk.classId || ''}" data-name="${escapeHtml(sk.name)}">
+      <div class="skp-row">
+        <span class="nm">${escapeHtml(sk.name)}</span>
+        ${sk.yomi ? `<span class="yomi">${escapeHtml(sk.yomi)}</span>` : ''}
+        <span class="skp-cat" data-c="${cat}">${cat}</span>
+      </div>
+      <div class="skp-status">
+        ${costHtml}
+        <span class="check"></span>
+        <span class="chev">▾</span>
+      </div>
+      ${prereqHtml}
+      <div class="skp-effect">${escapeHtml(sk.effect || '—').replace(/\n/g, '<br>')}</div>
+      ${expandHtml}
+    </div>`;
+  }
+
   async function renderPicker() {
     const card = getActiveCard(store.getState());
-    const groups = await buildGroups(card);
+    const all = await gatherAllSkills(card);
+    const filtered = all.filter(s => passesFilter(s, card));
     const totalEquipped = card?.skills?.equipped?.length || 0;
     const primaryName = card?.classes?.[0]?.name || '無';
-    // 蒐集每個級別的 initialNote
+    const totalCount = all.length;
+    const filteredCount = filtered.length;
+
+    const groups = buildGroups(filtered);
+    const groupsHtml = groups.map(g => {
+      const roleLabel = g.role === 'primary' ? '主級別' : (g.role === 'sub' ? '副級別' : (g.role === 'common' ? '全職通用' : ''));
+      const roleClass = g.role || 'common';
+      return `<div class="skp-group-h">
+        <span>${escapeHtml(g.title)}</span>
+        <span class="lbl-r"><span class="role ${roleClass}">${roleLabel}</span><span class="ct">${g.items.length}</span></span>
+      </div>` + g.items.map(s => renderItemHtml(s, card)).join('');
+    }).join('');
+
+    const listHtml = groupsHtml || `<div style="padding:32px var(--s-5); text-align:center; color:var(--ink-300); font-family:var(--f-mono); font-size:11px">
+      ${all.length === 0 ? '尚未指定級別<br>從中欄「級別」加入主級別後此處顯示可選特技' : '無符合的特技'}
+    </div>`;
+
+    // initial notes
     const initialNotes = [];
     if (card?.classes) {
       for (const cls of card.classes) {
         try {
           const data = await getLevel(cls.id);
-          if (data.initialNote) {
-            initialNotes.push({ name: data.name || cls.name, note: data.initialNote });
-          }
+          if (data.initialNote) initialNotes.push({ name: data.name || cls.name, note: data.initialNote });
         } catch {}
       }
     }
-
-    let listHtml = '';
-    let totalVisible = 0;
-    for (const g of groups) {
-      const visible = g.skills.filter(s => passesFilter(s, card));
-      if (visible.length === 0) continue;
-      totalVisible += visible.length;
-      listHtml += `<div class="skp-group-h">${escapeHtml(g.title)} <span class="ct">${visible.length}</span></div>`;
-      for (const sk of visible) {
-        const key = skillKey(sk.classId, sk.name);
-        const eq = isEquipped(card, key);
-        const meta = [sk.category, sk.limit].filter(x => x && x !== '無' && x !== '—').join(' · ');
-        listHtml += `<div class="skp-item${eq ? ' selected' : ''}"
-          data-key="${escapeHtml(key)}" data-classid="${sk.classId || ''}" data-name="${escapeHtml(sk.name)}">
-          <div class="check${eq ? ' on' : ''}"></div>
-          <div>
-            <div class="nm">${escapeHtml(sk.name)}</div>
-            <div class="meta">${escapeHtml(meta || '—')}</div>
+    const initialNotesHtml = initialNotes.length > 0 ? `
+      <div style="border-top:1px solid var(--ink-500); padding:var(--s-3) 0 0; margin-top:var(--s-3); font-family:var(--f-mono); font-size:10px; color:var(--ink-300); line-height:1.5">
+        ${initialNotes.map(n => `
+          <div style="margin-bottom:4px">
+            <span style="color:var(--gold);font-family:var(--f-heading);letter-spacing:.2em">初期 · ${escapeHtml(n.name)}</span><br>
+            <span style="color:var(--ink-200)">${escapeHtml(n.note)}</span>
           </div>
-          <div class="skp-cost">${escapeHtml(sk.cost || '—')}</div>
-        </div>`;
-      }
-    }
-    if (totalVisible === 0 && groups.length === 0) {
-      listHtml = `<div style="padding:24px 0; text-align:center; color:var(--ink-300); font-family:var(--f-mono); font-size:11px;">
-        尚未指定級別<br>從中欄「級別」加入主級別後此處顯示可選特技
-      </div>`;
-    } else if (totalVisible === 0) {
-      listHtml = `<div style="padding:24px 0; text-align:center; color:var(--ink-300); font-family:var(--f-mono); font-size:11px;">
-        無符合的特技
-      </div>`;
-    }
+        `).join('')}
+      </div>` : '';
+
+    const sortSegHtml = SORT_MODES.map(m =>
+      `<button class="${m === filters.sortMode ? 'on' : ''}" data-sort="${m}">${m}</button>`
+    ).join('');
 
     const filterChips = [
       `<span class="skp-chip${filters.equippedOnly ? ' on' : ''}" data-filter="equipped">已習得 ${totalEquipped}</span>`,
+      `<span class="skp-chip${filters.unmetOnly ? ' on' : ''}" data-filter="unmet">未達條件</span>`,
       ...FILTER_CATEGORIES.map(cat =>
-        `<span class="skp-chip${filters.categories.has(cat) ? ' on' : ''}" data-filter="cat" data-cat="${cat}">${cat}</span>`
+        `<span class="skp-chip${filters.categories.has(cat) ? ' cat-on' : ''}" data-filter="cat" data-cat="${cat}">${cat}</span>`
       ),
     ].join('');
 
@@ -133,26 +318,28 @@ export async function mountSkills({ pickerEl, equippedEl, detailEl }, store) {
         <span class="ord">${totalEquipped} 習得</span>
       </div>
       <div class="skp-search">
-        <input placeholder="検索 — 名稱・效果・分類" data-search value="${escapeHtml(filters.search)}">
+        <input placeholder="検索 — 特技名／效果關鍵字／分類" data-search value="${escapeHtml(filters.search)}">
+      </div>
+      <div class="skp-bar">
+        <div class="seg" role="tablist">${sortSegHtml}</div>
+        <span class="spacer"></span>
+        <span class="count"><b>${filteredCount}</b> 候補 · <b>${totalEquipped}</b> 已習得</span>
       </div>
       <div class="skp-filters">${filterChips}</div>
       <div class="skp-list">${listHtml}</div>
-      ${initialNotes.length > 0 ? `
-        <div style="border-top:1px solid var(--ink-500); padding:var(--s-3) 0 0; margin-top:var(--s-3); font-family:var(--f-mono); font-size:10px; color:var(--ink-300); line-height:1.5">
-          ${initialNotes.map(n => `
-            <div style="margin-bottom:4px">
-              <span style="color:var(--gold);font-family:var(--f-heading);letter-spacing:.2em">初期 · ${escapeHtml(n.name)}</span><br>
-              <span style="color:var(--ink-200)">${escapeHtml(n.note)}</span>
-            </div>
-          `).join('')}
-        </div>
-      ` : ''}
+      ${initialNotesHtml}
       <div class="skp-foot">
-        <span>已習得　<b>${totalEquipped}</b>　·　主：${escapeHtml(primaryName)}</span>
+        <span class="legend">
+          <span><i class="a"></i>主動</span>
+          <span><i class="r"></i>反應</span>
+          <span><i class="p"></i>常時</span>
+        </span>
+        <span>習得 <b>${totalEquipped}</b> · 主：${escapeHtml(primaryName)}</span>
       </div>
     `;
-    // 保留搜尋 input 焦點
-    if (document.activeElement && document.activeElement.dataset.search !== undefined) {
+
+    // 保留搜尋焦點
+    if (document.activeElement?.dataset?.search !== undefined) {
       const inp = pickerEl.querySelector('[data-search]');
       if (inp) {
         inp.focus();
@@ -161,6 +348,7 @@ export async function mountSkills({ pickerEl, equippedEl, detailEl }, store) {
     }
   }
 
+  // ---- Equipped-strip + sk-detail（保留 v3 行為） ----
   function renderEquipped() {
     const card = getActiveCard(store.getState());
     const equipped = card?.skills?.equipped || [];
@@ -178,17 +366,13 @@ export async function mountSkills({ pickerEl, equippedEl, detailEl }, store) {
   function renderDetail() {
     const card = getActiveCard(store.getState());
     const equipped = card?.skills?.equipped || [];
-    if (equipped.length === 0) {
-      detailEl.style.display = 'none';
-      return;
-    }
+    if (equipped.length === 0) { detailEl.style.display = 'none'; return; }
     if (!highlightedKey || !equipped.some(s => skillKey(s.classId, s.name) === highlightedKey)) {
       const first = equipped[0];
       highlightedKey = skillKey(first.classId, first.name);
     }
     const sk = equipped.find(s => skillKey(s.classId, s.name) === highlightedKey);
     if (!sk) { detailEl.style.display = 'none'; return; }
-
     detailEl.style.display = '';
     const cls = card.classes.find(c => c.id === sk.classId);
     const sourceLabel = sk.classId ? (cls?.name || sk.classId) : '共通';
@@ -237,25 +421,8 @@ export async function mountSkills({ pickerEl, equippedEl, detailEl }, store) {
     renderDetail();
   }
 
-  // ---- Events ----
-  pickerEl.addEventListener('click', async e => {
-    const filter = e.target.closest('.skp-chip');
-    if (filter) {
-      const f = filter.dataset.filter;
-      if (f === 'equipped') filters.equippedOnly = !filters.equippedOnly;
-      else if (f === 'cat') {
-        const cat = filter.dataset.cat;
-        filters.categories.has(cat) ? filters.categories.delete(cat) : filters.categories.add(cat);
-      }
-      renderPicker();
-      return;
-    }
-    const item = e.target.closest('.skp-item');
-    if (!item) return;
-    const card = getActiveCard(store.getState());
-    if (!card) return;
-    const classId = item.dataset.classid || null;
-    const name = item.dataset.name;
+  // ---- 事件處理 ----
+  async function toggleEquip(card, classId, name) {
     const key = skillKey(classId, name);
     if (isEquipped(card, key)) {
       store.updateCard(card.id, c => {
@@ -272,23 +439,77 @@ export async function mountSkills({ pickerEl, equippedEl, detailEl }, store) {
         full = commonData.skills.find(s => s.name === name);
       }
       if (!full) return;
-      const skillObj = {
-        name: full.name,
-        yomi: '',
-        classId: classId,
-        category: full.category || '',
-        cost: full.cost || '',
-        limit: full.limit || '',
-        effect: full.effect || '',
-        secondaryCondition: '',
-        additionalEffect: '',
-        emotionReward: '',
-      };
       store.updateCard(card.id, c => {
-        c.skills.equipped.push(skillObj);
+        c.skills.equipped.push({
+          name: full.name, yomi: '', classId,
+          category: full.category || '',
+          cost: full.cost || '',
+          limit: full.limit || '',
+          effect: full.effect || '',
+          secondaryCondition: '', additionalEffect: '', emotionReward: '',
+        });
       });
       highlightedKey = key;
     }
+  }
+
+  pickerEl.addEventListener('click', async e => {
+    const card = getActiveCard(store.getState());
+    if (!card) return;
+    const t = e.target;
+
+    // sort seg
+    const sortBtn = t.closest('[data-sort]');
+    if (sortBtn) {
+      filters.sortMode = sortBtn.dataset.sort;
+      renderPicker();
+      return;
+    }
+    // filter chip
+    const filterEl = t.closest('.skp-chip');
+    if (filterEl) {
+      const f = filterEl.dataset.filter;
+      if (f === 'equipped') filters.equippedOnly = !filters.equippedOnly;
+      else if (f === 'unmet') filters.unmetOnly = !filters.unmetOnly;
+      else if (f === 'cat') {
+        const cat = filterEl.dataset.cat;
+        filters.categories.has(cat) ? filters.categories.delete(cat) : filters.categories.add(cat);
+      }
+      renderPicker();
+      return;
+    }
+    // item interactions
+    const item = t.closest('.skp-item');
+    if (!item) return;
+    const classId = item.dataset.classid || null;
+    const name = item.dataset.name;
+    const key = skillKey(classId, name);
+
+    // check 或 add-btn → toggle equip（不展開）
+    if (t.closest('.check') || t.closest('[data-toggle-equip]')) {
+      e.stopPropagation();
+      await toggleEquip(card, classId, name);
+      return;
+    }
+    // link-btn → 跳到中央 detail（需要先 equip）
+    if (t.closest('[data-link-detail]')) {
+      e.stopPropagation();
+      if (!isEquipped(card, key)) await toggleEquip(card, classId, name);
+      highlightedKey = key;
+      // 滾動 sk-detail 進視野
+      detailEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      renderEquipped();
+      renderDetail();
+      return;
+    }
+    // 其他 click on row body → toggle expand（單開：摺疊其他）
+    if (expanded.has(key)) {
+      expanded.delete(key);
+    } else {
+      expanded.clear();
+      expanded.add(key);
+    }
+    renderPicker();
   });
 
   pickerEl.addEventListener('input', e => {
@@ -306,16 +527,15 @@ export async function mountSkills({ pickerEl, equippedEl, detailEl }, store) {
     renderDetail();
   });
 
-  // 當 store 變動（含 active card 切換、技能勾選），全部重繪
-  let lastActiveId = null;
+  let lastActiveId = store.getState().activeCardId;
   store.subscribe(() => {
     const cur = store.getState().activeCardId;
     if (cur !== lastActiveId) {
       lastActiveId = cur;
-      highlightedKey = null;  // 切換角色時重置 highlight
+      highlightedKey = null;
+      expanded.clear();
     }
     renderAll();
   });
-  lastActiveId = store.getState().activeCardId;
   await renderAll();
 }
