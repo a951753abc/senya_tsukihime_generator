@@ -661,7 +661,7 @@ body {
 .slot-stack { display: flex; flex-direction: column; gap: 8px; }
 .slot {
   display: grid;
-  grid-template-columns: 22px 1.4fr 110px 28px;
+  grid-template-columns: 22px 1.4fr 132px 28px;
   gap: 10px;
   align-items: center;
   padding: 6px 8px 6px 6px;
@@ -739,7 +739,9 @@ body {
   font-size: var(--t-lg);
   font-weight: 700;
   color: var(--paper-900);
-  width: 30px;
+  min-width: 0;
+  width: auto;
+  padding: 0 2px;
   outline: none;
 }
 .slot .lvl::before {
