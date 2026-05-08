@@ -1,0 +1,40 @@
+{
+  "schemaVersion": "2.0",
+  "version": "1.0.0",
+  "lastUpdated": "2026-05-08",
+  "levels": [
+    { "id": "karyu",              "name": "狩人",       "tier": "basic",    "tagEn": "HUNTER" },
+    { "id": "kenshi",             "name": "劍士",       "tier": "basic",    "tagEn": "SWORDSMAN" },
+    { "id": "syuryousya",         "name": "狩獵者",     "tier": "basic",    "tagEn": "PREDATOR" },
+    { "id": "daikousya",          "name": "代行者",     "tier": "basic",    "tagEn": "AGENT" },
+    { "id": "butouka",            "name": "武鬥家",     "tier": "basic",    "tagEn": "MARTIALIST" },
+    { "id": "majutushi",          "name": "魔術師",     "tier": "basic",    "tagEn": "CASTER" },
+    { "id": "tyouno",             "name": "超能力者",   "tier": "basic",    "tagEn": "PSYCHIC" },
+    { "id": "og",                 "name": "古神道",     "tier": "advanced", "tagEn": "RITUALIST" },
+    { "id": "gug",                "name": "異端",       "tier": "advanced", "tagEn": "HERETIC" },
+    { "id": "leftway",            "name": "左道",       "tier": "advanced", "tagEn": "LEFTHAND" },
+    { "id": "kunshi",             "name": "策士",       "tier": "advanced", "tagEn": "STRATEGIST" },
+    { "id": "ninja",              "name": "忍者",       "tier": "advanced", "tagEn": "NINJA" },
+    { "id": "theswordofnameless", "name": "無名劍",     "tier": "advanced", "tagEn": "NAMELESS" },
+    { "id": "windwater",          "name": "風水士",     "tier": "advanced", "tagEn": "FENGSHUI" }
+  ],
+  "elements": [
+    { "id": "earth", "name": "地" },
+    { "id": "water", "name": "水" },
+    { "id": "fire",  "name": "火" },
+    { "id": "wind",  "name": "風" },
+    { "id": "void",  "name": "空" }
+  ],
+  "abilities": [
+    { "id": "physical",   "name": "體力", "yomi": "TAIRYOKU" },
+    { "id": "perception", "name": "知覺", "yomi": "CHIKAKU" },
+    { "id": "reason",     "name": "理智", "yomi": "RICHI" },
+    { "id": "will",       "name": "意志", "yomi": "ISHI" }
+  ],
+  "styleCategories": [
+    { "id": "mystic",  "name": "神祕" },
+    { "id": "warrior", "name": "戰士" },
+    { "id": "social",  "name": "社會" },
+    { "id": "passion", "name": "情念" }
+  ]
+}

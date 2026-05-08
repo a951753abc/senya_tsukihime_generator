@@ -1,0 +1,226 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://a951753abc.github.io/senya_tsukihime_generator/data/schema/character.json",
+  "title": "Character (v2.0)",
+  "description": "千夜月姬 TRPG 角色卡 schema — 對齊 Claude Design Prototype v3。派生欄位（HP/TP/戰鬥值/羈絆合計）不入庫，由 derive.js 即時計算。",
+  "type": "object",
+  "required": ["id", "schemaVersion", "meta", "stats"],
+  "properties": {
+    "id": { "type": "string", "description": "UUID, crypto.randomUUID()" },
+    "schemaVersion": { "const": "2.0" },
+    "meta": {
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "yomi": { "type": "string", "description": "讀み（假名）" },
+        "player": { "type": "string" },
+        "campaign": { "type": "string" },
+        "seal": { "type": "string", "description": "朱印用單字（通常為姓首字）；空則自動取 name[0]" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "additionalProperties": false
+    },
+    "personal": {
+      "type": "object",
+      "properties": {
+        "race": { "type": "string", "description": "種族" },
+        "society": { "type": "string", "description": "地域社會" },
+        "age": { "type": "string" },
+        "gender": { "type": "string" },
+        "appearance": { "type": "string", "description": "外貌（髪／瞳／肌／身）" }
+      },
+      "additionalProperties": false
+    },
+    "progression": {
+      "type": "object",
+      "properties": {
+        "characterLevel": { "type": "integer", "minimum": 0, "description": "角色等級（多級別 level 合計）" },
+        "remainingExp": { "type": "integer", "minimum": 0, "description": "剩餘經驗點" },
+        "initialClassId": { "type": ["string", "null"], "description": "初始級別 id" },
+        "initialLevel": { "type": "integer", "minimum": 1 }
+      },
+      "additionalProperties": false
+    },
+    "classes": {
+      "type": "array",
+      "maxItems": 4,
+      "description": "級別槽 — 主／副／第3／第4。第一個 = 主級別。",
+      "items": {
+        "type": "object",
+        "required": ["id", "level", "isPrimary"],
+        "properties": {
+          "id": { "type": "string", "description": "級別 id (kenshi, og, ...)" },
+          "name": { "type": "string" },
+          "tier": { "enum": ["basic", "advanced"] },
+          "level": { "type": "integer", "minimum": 1, "maximum": 10 },
+          "isPrimary": { "type": "boolean" }
+        },
+        "additionalProperties": false
+      }
+    },
+    "styles": {
+      "type": "array",
+      "description": "風格 — 連動分類／背反律／代償／獲得感情",
+      "items": {
+        "type": "object",
+        "required": ["name", "isPrimary"],
+        "properties": {
+          "name": { "type": "string" },
+          "category": { "enum": ["神祕", "戰士", "社會", "情念"], "description": "風格大類" },
+          "classification": { "type": "string", "description": "分類（如 儀典・封印）" },
+          "antithesis": { "type": "string", "description": "背反律" },
+          "compensation": { "type": "string", "description": "代償" },
+          "emotion": { "type": "string", "description": "獲得感情" },
+          "isPrimary": { "type": "boolean", "description": "主風格 — 朱色標記，同類條件優先生效" }
+        },
+        "additionalProperties": false
+      }
+    },
+    "stats": {
+      "type": "object",
+      "required": ["abilities"],
+      "properties": {
+        "abilities": {
+          "type": "object",
+          "description": "4 屬性，每個 6 欄分解（基礎+級1+級2+級3+特殊=合計）。合計為派生，不入庫。",
+          "required": ["physical", "perception", "reason", "will"],
+          "properties": {
+            "physical":   { "$ref": "#/$defs/abilityCell", "description": "體力 TAIRYOKU" },
+            "perception": { "$ref": "#/$defs/abilityCell", "description": "知覺 CHIKAKU" },
+            "reason":     { "$ref": "#/$defs/abilityCell", "description": "理智 RICHI" },
+            "will":       { "$ref": "#/$defs/abilityCell", "description": "意志 ISHI" }
+          },
+          "additionalProperties": false
+        },
+        "elements": {
+          "type": "object",
+          "description": "五大屬性",
+          "properties": {
+            "earth": { "type": "integer", "minimum": 0 },
+            "water": { "type": "integer", "minimum": 0 },
+            "fire":  { "type": "integer", "minimum": 0 },
+            "wind":  { "type": "integer", "minimum": 0 },
+            "void":  { "type": "integer", "minimum": 0, "description": "空" }
+          },
+          "additionalProperties": false
+        },
+        "elementsExtra": {
+          "type": "array",
+          "description": "例外 — 劇本／流派專用屬性",
+          "items": {
+            "type": "object",
+            "required": ["name", "value"],
+            "properties": {
+              "name":  { "type": "string" },
+              "value": { "type": "integer" }
+            },
+            "additionalProperties": false
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "skills": {
+      "type": "object",
+      "properties": {
+        "equipped":            { "type": "array", "items": { "$ref": "#/$defs/skill" }, "description": "已裝備特技" },
+        "common":              { "type": "array", "items": { "$ref": "#/$defs/skill" }, "description": "共通特技" },
+        "infiniteDestruction": { "type": "array", "items": { "$ref": "#/$defs/skill" }, "description": "無盡破壞 — 等級 3/6/9 各 1 個" }
+      },
+      "additionalProperties": false
+    },
+    "items": {
+      "type": "object",
+      "description": "所持道具，按等級 1-3 / 4-6 / 7-9 分三階",
+      "properties": {
+        "tier1to3": { "type": "array", "items": { "$ref": "#/$defs/item" } },
+        "tier4to6": { "type": "array", "items": { "$ref": "#/$defs/item" } },
+        "tier7to9": { "type": "array", "items": { "$ref": "#/$defs/item" } }
+      },
+      "additionalProperties": false
+    },
+    "relationships": {
+      "type": "array",
+      "description": "角色關係表",
+      "items": {
+        "type": "object",
+        "required": ["name"],
+        "properties": {
+          "name":    { "type": "string" },
+          "isNpc":   { "type": "boolean" },
+          "emotion": { "type": "string", "description": "感情（28 種其一，可手填擴展）" },
+          "tone":    { "enum": ["pure", "crazy"], "description": "色調 — 潔淨／瘋狂" },
+          "bond":    { "type": "integer", "description": "羈絆值（負＝瘋狂方向）" },
+          "note":    { "type": "string" }
+        },
+        "additionalProperties": false
+      }
+    },
+    "setting": {
+      "type": "object",
+      "description": "角色設定 — 4 區塊自由文字",
+      "properties": {
+        "background":  { "type": "string", "description": "背景・出自" },
+        "personality": { "type": "string", "description": "性格・癖" },
+        "history":     { "type": "string", "description": "来歴・劇本連動" },
+        "memo":        { "type": "string", "description": "自由メモ" }
+      },
+      "additionalProperties": false
+    },
+    "session": {
+      "type": "object",
+      "description": "本場跑團 session 狀態",
+      "properties": {
+        "sessionNum":     { "type": "integer", "minimum": 0 },
+        "loopCurrent":    { "type": "integer", "minimum": 0 },
+        "loopTotal":      { "type": "integer", "minimum": 0 },
+        "lastSavedAt":    { "type": "string", "format": "date-time" },
+        "lastExportedAt": { "type": "string", "format": "date-time" }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "abilityCell": {
+      "type": "object",
+      "description": "單一屬性的 5 個來源欄位（合計=派生）",
+      "properties": {
+        "base":    { "type": "integer", "minimum": 0, "description": "基礎值" },
+        "mod1":    { "type": "integer", "description": "級別 1（主）修正" },
+        "mod2":    { "type": "integer", "description": "級別 2（副）修正" },
+        "mod3":    { "type": "integer", "description": "級別 3 修正" },
+        "special": { "type": "integer", "description": "特殊修正（道具／劇本／突發）" }
+      },
+      "additionalProperties": false
+    },
+    "skill": {
+      "type": "object",
+      "required": ["name"],
+      "properties": {
+        "name":               { "type": "string" },
+        "yomi":               { "type": "string" },
+        "classId":            { "type": ["string", "null"], "description": "來源級別 id（共通 = null）" },
+        "category":           { "type": "string", "description": "主動／反應／常時／準備階段" },
+        "cost":               { "type": "string", "description": "代價（如 'TP 4'、'代價傷害 35'）" },
+        "limit":              { "type": "string", "description": "取得限制" },
+        "effect":             { "type": "string" },
+        "secondaryCondition": { "type": "string", "description": "二段條件" },
+        "additionalEffect":   { "type": "string", "description": "追加效果" },
+        "emotionReward":      { "type": "string", "description": "情緒獎勵（如 '憧憬 +1'）" }
+      },
+      "additionalProperties": false
+    },
+    "item": {
+      "type": "object",
+      "required": ["name"],
+      "properties": {
+        "name":  { "type": "string" },
+        "level": { "type": ["integer", "null"], "description": "等級值（1-9）" },
+        "note":  { "type": "string" }
+      },
+      "additionalProperties": false
+    }
+  }
+}

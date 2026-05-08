@@ -1,0 +1,15 @@
+{
+  "name": "senya-tsukihime-generator",
+  "private": true,
+  "type": "module",
+  "version": "0.1.0",
+  "description": "千夜月姬 TRPG 線上角色產生器 — 純前端，零生產依賴",
+  "scripts": {
+    "test": "vitest",
+    "test:run": "vitest --run"
+  },
+  "devDependencies": {
+    "vitest": "^2.0.0",
+    "jsdom": "^24.0.0"
+  }
+}
