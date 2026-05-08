@@ -59,40 +59,8 @@
 <!-- ================================================================ APP GRID — 3 columns ================================================================ -->
 <div class="app">
 
-  <!-- ============================================================ LEFT: SKILL PICKER（靜態示範，Phase 1-D 後接通）============================================================ -->
-  <aside class="col left">
-    <div class="sec-label">
-      <span class="glyph">特技</span><span>skill picker</span><span class="rule"></span><span class="ord">demo</span>
-    </div>
-    <div class="skp-search"><input placeholder="検索 / 篩選 — Phase 1-D 後啟用"></div>
-    <div class="skp-filters">
-      <span class="skp-chip on">已習得 4</span>
-      <span class="skp-chip">古神道 12</span>
-      <span class="skp-chip">魔術師 9</span>
-      <span class="skp-chip">共通 28</span>
-      <span class="skp-chip">主動</span>
-      <span class="skp-chip">反應</span>
-      <span class="skp-chip">常時</span>
-    </div>
-    <div class="skp-list">
-      <div class="skp-group-h">古神道 — 主級別 <span class="ct">12</span></div>
-      <div class="skp-item selected"><div class="check on"></div><div><div class="nm">月讀の眼</div><div class="meta">常時 · Lv1+</div></div><div class="skp-cost">— —</div></div>
-      <div class="skp-item"><div class="check on"></div><div><div class="nm">穢れ祓い</div><div class="meta">主動 · 理智5+</div></div><div class="skp-cost">TP 4</div></div>
-      <div class="skp-item"><div class="check on"></div><div><div class="nm">繰り返しの記憶</div><div class="meta">反應 · 記憶ON</div></div><div class="skp-cost">TP 6</div></div>
-      <div class="skp-item"><div class="check on"></div><div><div class="nm">鳥居の境界</div><div class="meta">主動 · Lv4+</div></div><div class="skp-cost">TP 8 · HP 2</div></div>
-      <div class="skp-item"><div class="check"></div><div><div class="nm">護符投擲</div><div class="meta">主動 · Lv1+</div></div><div class="skp-cost">TP 3</div></div>
-      <div class="skp-item"><div class="check"></div><div><div class="nm">夢見の素養</div><div class="meta">常時 · 意志4+</div></div><div class="skp-cost">— —</div></div>
-      <div class="skp-group-h">魔術師 — 副級別 <span class="ct">9</span></div>
-      <div class="skp-item"><div class="check"></div><div><div class="nm">魔力封印</div><div class="meta">反應 · 理智6+</div></div><div class="skp-cost">TP 5</div></div>
-      <div class="skp-item"><div class="check"></div><div><div class="nm">術式変換</div><div class="meta">主動 · 共通</div></div><div class="skp-cost">TP 4</div></div>
-      <div class="skp-group-h">共通 — 全職 <span class="ct">28</span></div>
-      <div class="skp-item"><div class="check"></div><div><div class="nm">気合い溜め</div><div class="meta">主動 · 共通</div></div><div class="skp-cost">TP 0</div></div>
-      <div class="skp-item"><div class="check"></div><div><div class="nm">致命の見切り</div><div class="meta">反應 · 知覺6+</div></div><div class="skp-cost">TP 4</div></div>
-    </div>
-    <div class="skp-foot">
-      <span>Phase 1-D 接 parser 之後啟用</span>
-    </div>
-  </aside>
+  <!-- ============================================================ LEFT: SKILL PICKER — JS 渲染 ============================================================ -->
+  <aside id="skill-picker" class="col left"></aside>
 
   <!-- ============================================================ CENTER: CHARACTER CARD ============================================================ -->
   <main class="col center">
@@ -179,54 +147,13 @@
       </div>
       <section id="elements"></section>
 
-      <!-- ============================================================
-           特技詳情（靜態示範，Phase 1-D 後接通）
-           ============================================================ -->
+      <!-- 特技 — JS 渲染（equipped-strip + sk-detail） -->
       <div class="ritual-divider">
         <span class="glyph">特</span><span>technique ・ 特技</span>
-        <span class="badge">demo</span>
         <span class="chev">▾</span>
       </div>
-      <div class="equipped-strip">
-        <span class="eq-chip on">月讀の眼 <span class="x">●</span></span>
-        <span class="eq-chip">穢れ祓い</span>
-        <span class="eq-chip">繰り返しの記憶</span>
-        <span class="eq-chip">鳥居の境界</span>
-      </div>
-      <div class="sk-detail">
-        <span class="pin">DEMO</span>
-        <div class="head">
-          <div class="nm">月讀の眼<span class="yomi">TSUKUYOMI NO ME</span></div>
-          <div class="badges">
-            <span class="sk-badge shu">常時</span>
-            <span class="sk-badge">古神道 Lv1+</span>
-          </div>
-        </div>
-        <div class="grid">
-          <div class="sk-cell"><div class="k">分類</div><div class="v">常時 / passive</div></div>
-          <div class="sk-cell"><div class="k">代價</div><div class="v"><span class="shu">— —</span> 無</div></div>
-          <div class="sk-cell"><div class="k">取得限制</div><div class="v">古神道 Lv1+</div></div>
-          <div class="sk-cell"><div class="k">情緒獎勵</div><div class="v"><span class="shu">憧憬</span></div></div>
-        </div>
-        <div class="sk-effect">
-          場面開始時，可指定一名 NPC，記錄其所在區位。本場面內，對該對象進行的所有判定 +1。
-        </div>
-        <div class="sk-advanced">
-          <div class="sk-adv-block shu">
-            <div class="k">二段條件</div>
-            <div class="v">指定對象於本場面內因任一判定失敗而受傷時觸發。</div>
-          </div>
-          <div class="sk-adv-block gold">
-            <div class="k">追加效果</div>
-            <div class="v">本場面結束前，對該對象之精神判定改為自動成功，至多 1 回。</div>
-          </div>
-        </div>
-        <div class="sk-emo">
-          <span class="lbl">情緒獎勵</span>
-          <span class="pill-g">憧憬 +1</span>
-          <span class="desc">·　Phase 1-D 後接通使用者資料</span>
-        </div>
-      </div>
+      <div id="equipped-strip" class="equipped-strip"></div>
+      <div id="sk-detail" class="sk-detail" style="display:none"></div>
 
       <!-- 道具（靜態示範） -->
       <div class="ritual-divider">

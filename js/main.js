@@ -10,6 +10,7 @@ import { mountAttrs } from './ui/attrs.js';
 import { mountElements } from './ui/elements.js';
 import { mountSetting } from './ui/setting.js';
 import { mountDerived } from './ui/derived.js';
+import { mountSkills } from './ui/skills.js';
 
 const store = createStore();
 const meta = await loadMeta();
@@ -28,6 +29,12 @@ mountAttrs(      $('attrs-section'),store);
 mountElements(   $('elements'),     store);
 mountSetting(    $('setting'),      store);
 mountDerived(    $('derived'),      store);
+
+await mountSkills({
+  pickerEl:   $('skill-picker'),
+  equippedEl: $('equipped-strip'),
+  detailEl:   $('sk-detail'),
+}, store);
 
 // 暴露到 window for debug
 window.__store = store;

@@ -19,6 +19,10 @@ export function loadLevel(levelId) {
   return load(`./data/levels/${levelId}.json`);
 }
 
+export function loadCommonSkills() {
+  return load('./data/common-skills.json');
+}
+
 export function clearCache() {
   cache.clear();
 }
