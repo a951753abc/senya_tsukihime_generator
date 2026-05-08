@@ -95,6 +95,7 @@ export async function mountSkills({ pickerEl, equippedEl, detailEl }, store) {
 
   let highlightedKey = null;
   const expanded = new Set();
+  const dismissedInitBanners = new Set();  // banner 被關閉時記住，當輪 session 不再彈
 
   const filters = {
     search: '',
@@ -280,25 +281,33 @@ export async function mountSkills({ pickerEl, equippedEl, detailEl }, store) {
       ${all.length === 0 ? '尚未指定級別<br>從中欄「級別」加入主級別後此處顯示可選特技' : '無符合的特技'}
     </div>`;
 
-    // initial notes
+    // 初始技能 banners（搬到搜尋下方顯眼位置；可關閉）
     const initialNotes = [];
     if (card?.classes) {
       for (const cls of card.classes) {
         try {
           const data = await getLevel(cls.id);
-          if (data.initialNote) initialNotes.push({ name: data.name || cls.name, note: data.initialNote });
+          if (data.initialNote && !dismissedInitBanners.has(cls.id)) {
+            initialNotes.push({
+              classId: cls.id,
+              name: data.name || cls.name,
+              role: cls.isPrimary ? '主級別' : '副級別',
+              note: data.initialNote,
+            });
+          }
         } catch {}
       }
     }
-    const initialNotesHtml = initialNotes.length > 0 ? `
-      <div style="border-top:1px solid var(--ink-500); padding:var(--s-3) 0 0; margin-top:var(--s-3); font-family:var(--f-mono); font-size:10px; color:var(--ink-300); line-height:1.5">
-        ${initialNotes.map(n => `
-          <div style="margin-bottom:4px">
-            <span style="color:var(--gold);font-family:var(--f-heading);letter-spacing:.2em">初期 · ${escapeHtml(n.name)}</span><br>
-            <span style="color:var(--ink-200)">${escapeHtml(n.note)}</span>
-          </div>
-        `).join('')}
-      </div>` : '';
+    const initialBannersHtml = initialNotes.map(n => `
+      <div class="skp-init" data-init-banner="${escapeHtml(n.classId)}">
+        <div class="ic">初</div>
+        <div class="body">
+          <div class="ttl">級別初始 <b>${escapeHtml(n.name)} · ${n.role}</b></div>
+          <div class="txt">${escapeHtml(n.note)}</div>
+        </div>
+        <div class="close" data-close-init="${escapeHtml(n.classId)}" title="關閉提示">✕</div>
+      </div>
+    `).join('');
 
     const sortSegHtml = SORT_MODES.map(m =>
       `<button class="${m === filters.sortMode ? 'on' : ''}" data-sort="${m}">${m}</button>`
@@ -320,6 +329,7 @@ export async function mountSkills({ pickerEl, equippedEl, detailEl }, store) {
       <div class="skp-search">
         <input placeholder="検索 — 特技名／效果關鍵字／分類" data-search value="${escapeHtml(filters.search)}">
       </div>
+      ${initialBannersHtml}
       <div class="skp-bar">
         <div class="seg" role="tablist">${sortSegHtml}</div>
         <span class="spacer"></span>
@@ -327,7 +337,6 @@ export async function mountSkills({ pickerEl, equippedEl, detailEl }, store) {
       </div>
       <div class="skp-filters">${filterChips}</div>
       <div class="skp-list">${listHtml}</div>
-      ${initialNotesHtml}
       <div class="skp-foot">
         <span class="legend">
           <span><i class="a"></i>主動</span>
@@ -457,6 +466,14 @@ export async function mountSkills({ pickerEl, equippedEl, detailEl }, store) {
     const card = getActiveCard(store.getState());
     if (!card) return;
     const t = e.target;
+
+    // 初始技能 banner 關閉
+    const closeBtn = t.closest('[data-close-init]');
+    if (closeBtn) {
+      dismissedInitBanners.add(closeBtn.dataset.closeInit);
+      renderPicker();
+      return;
+    }
 
     // sort seg
     const sortBtn = t.closest('[data-sort]');

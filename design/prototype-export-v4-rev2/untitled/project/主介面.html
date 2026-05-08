@@ -1,0 +1,1116 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<title>千夜月姬・角色帳 — 主介面</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;500;700;900&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    /* --- Ink palette --- */
+    --ink-900:#0e0d10;          /* deepest void */
+    --ink-800:#15141a;          /* app background */
+    --ink-700:#1c1b22;          /* panel surface */
+    --ink-600:#26242d;          /* raised surface */
+    --ink-500:#312f3a;          /* divider strong */
+    --ink-400:#43404d;          /* divider */
+    --ink-300:#6a6675;          /* muted text */
+    --ink-200:#a09bab;          /* secondary text */
+    --ink-100:#d8d3df;          /* primary text on ink */
+
+    /* --- Paper (active card) --- */
+    --paper-50:#f6f1e6;
+    --paper-100:#ece5d3;
+    --paper-200:#d9cfb4;
+    --paper-300:#b8a986;
+    --paper-700:#5a4f37;
+    --paper-800:#3a3324;
+    --paper-900:#1f1c14;
+
+    /* --- Accents --- */
+    --shu:#b3392c;              /* 朱 — vermilion, state/danger/active */
+    --shu-soft:#e57364;
+    --shu-deep:#7a1f17;
+    --gold:#c8a96a;             /* 月 — moon gold, derived values */
+    --gold-soft:#e9d8a8;
+    --kon:#2a3a52;              /* 紺 — deep blue, calm */
+
+    /* --- Type --- */
+    --f-heading:"Noto Serif JP", "Songti SC", "Yu Mincho", serif;
+    --f-body:"Inter","Noto Sans JP","Hiragino Sans",sans-serif;
+    --f-mono:"JetBrains Mono","SF Mono",monospace;
+
+    /* type scale */
+    --t-xs:11px; --t-sm:12px; --t-base:13px; --t-md:14px;
+    --t-lg:16px; --t-xl:20px; --t-2xl:26px; --t-3xl:34px; --t-4xl:48px;
+
+    /* spacing scale (4px base) */
+    --s-1:4px; --s-2:8px; --s-3:12px; --s-4:16px; --s-5:20px;
+    --s-6:24px; --s-8:32px; --s-10:40px; --s-12:48px; --s-16:64px;
+
+    --r-sm:2px; --r-md:4px; --r-lg:8px; --r-xl:14px;
+
+    --shadow-sm:0 1px 0 rgba(0,0,0,.4), 0 1px 2px rgba(0,0,0,.3);
+    --shadow-md:0 2px 6px rgba(0,0,0,.45), 0 8px 24px rgba(0,0,0,.35);
+    --shadow-card:0 1px 0 rgba(255,255,255,.04) inset, 0 12px 40px rgba(0,0,0,.55), 0 2px 0 rgba(0,0,0,.4);
+  }
+
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    font-family:var(--f-body);
+    font-size:var(--t-base);
+    color:var(--ink-100);
+    background:var(--ink-800);
+    background-image:
+      radial-gradient(1200px 600px at 80% -10%, rgba(179,57,44,.06), transparent 60%),
+      radial-gradient(900px 500px at -10% 110%, rgba(42,58,82,.18), transparent 60%);
+    min-height:100vh;
+    -webkit-font-smoothing:antialiased;
+  }
+
+  /* ---------- Top chrome ---------- */
+  .topbar{
+    height:52px; display:flex; align-items:center;
+    padding:0 var(--s-6);
+    border-bottom:1px solid var(--ink-500);
+    background:linear-gradient(180deg, rgba(255,255,255,.02), transparent);
+    gap:var(--s-6);
+  }
+  .brand{display:flex; align-items:baseline; gap:var(--s-3); font-family:var(--f-heading);}
+  .brand .mark{
+    width:22px;height:22px;border:1px solid var(--gold);border-radius:50%;
+    position:relative; transform:translateY(4px);
+    box-shadow:inset -6px 0 0 0 var(--ink-800);
+  }
+  .brand .name{font-size:var(--t-lg); font-weight:700; letter-spacing:.18em;}
+  .brand .sub{font-size:var(--t-xs); color:var(--ink-300); letter-spacing:.3em; text-transform:uppercase;}
+  .top-spacer{flex:1}
+  .top-meta{display:flex; gap:var(--s-5); color:var(--ink-300); font-family:var(--f-mono); font-size:var(--t-xs); letter-spacing:.05em}
+  .top-meta b{color:var(--ink-100); font-weight:500}
+  .pill{
+    display:inline-flex; align-items:center; gap:6px;
+    padding:4px 10px; border:1px solid var(--ink-500); border-radius:999px;
+    color:var(--ink-200); font-size:var(--t-xs); letter-spacing:.08em;
+  }
+  .pill .dot{width:6px;height:6px;border-radius:50%;background:var(--shu)}
+
+  /* ---------- App grid ---------- */
+  .app{
+    display:grid;
+    grid-template-columns: 280px 1fr 360px;
+    gap:0;
+    min-height:calc(100vh - 52px);
+  }
+  .col{padding:var(--s-6); min-width:0}
+  .col.left{
+    border-right:1px solid var(--ink-500);
+    background:linear-gradient(180deg, var(--ink-800), var(--ink-900));
+  }
+  .col.right{
+    border-left:1px solid var(--ink-500);
+    background:linear-gradient(180deg, var(--ink-800), #0a0910);
+  }
+
+  /* ---------- Section labels (calligraphic) ---------- */
+  .sec-label{
+    display:flex; align-items:center; gap:var(--s-3);
+    margin:0 0 var(--s-4);
+    font-family:var(--f-heading);
+    font-size:var(--t-sm); letter-spacing:.4em; color:var(--ink-200);
+    text-transform:uppercase;
+  }
+  .sec-label .glyph{
+    font-size:var(--t-lg); color:var(--gold); letter-spacing:0;
+    font-weight:500;
+  }
+  .sec-label .rule{flex:1; height:1px; background:linear-gradient(90deg,var(--ink-500),transparent)}
+  .sec-label .ord{font-family:var(--f-mono); font-size:var(--t-xs); color:var(--ink-300)}
+
+  /* ---------- LEFT: Character list ---------- */
+  .roster{display:flex; flex-direction:column; gap:6px; margin-top:var(--s-2)}
+  .ros-item{
+    position:relative;
+    display:grid; grid-template-columns:28px 1fr auto; align-items:center;
+    gap:var(--s-3);
+    padding:10px 12px 10px 10px;
+    border:1px solid transparent;
+    border-radius:var(--r-md);
+    cursor:pointer;
+    color:var(--ink-200);
+  }
+  .ros-item:hover{background:var(--ink-700); color:var(--ink-100)}
+  .ros-item.active{
+    background:linear-gradient(180deg,#1f1d27,#16151c);
+    border-color:var(--ink-400);
+    color:var(--ink-100);
+    box-shadow:var(--shadow-sm);
+  }
+  .ros-item.active::before{
+    content:""; position:absolute; left:-1px; top:8px; bottom:8px; width:2px;
+    background:var(--shu);
+  }
+  .ros-num{
+    font-family:var(--f-mono); font-size:var(--t-xs); color:var(--ink-300);
+    text-align:right; padding-right:2px;
+  }
+  .ros-name{font-family:var(--f-heading); font-size:var(--t-md); font-weight:500; line-height:1.2}
+  .ros-meta{font-size:var(--t-xs); color:var(--ink-300); margin-top:2px; font-family:var(--f-mono); letter-spacing:.05em}
+  .ros-lvl{
+    font-family:var(--f-mono); font-size:var(--t-xs);
+    color:var(--gold); padding:2px 6px;
+    border:1px solid var(--ink-500); border-radius:var(--r-sm);
+  }
+  .ros-add{
+    margin-top:var(--s-3);
+    padding:10px;
+    border:1px dashed var(--ink-400);
+    border-radius:var(--r-md);
+    color:var(--ink-300);
+    text-align:center;
+    font-size:var(--t-sm); letter-spacing:.2em;
+    cursor:pointer;
+    background:transparent;
+    width:100%;
+    font-family:var(--f-body);
+  }
+  .ros-add:hover{border-color:var(--gold); color:var(--gold)}
+
+  .left-foot{
+    margin-top:var(--s-8);
+    border-top:1px solid var(--ink-500);
+    padding-top:var(--s-4);
+    display:flex; flex-direction:column; gap:var(--s-2);
+    color:var(--ink-300);
+    font-size:var(--t-xs);
+    font-family:var(--f-mono);
+  }
+  .kbd{
+    display:inline-block; padding:1px 6px; border:1px solid var(--ink-500);
+    border-bottom-width:2px; border-radius:3px; color:var(--ink-200); font-size:10px;
+  }
+
+  /* ---------- CENTER: Character card ---------- */
+  .card{
+    background:linear-gradient(180deg, var(--paper-50) 0%, var(--paper-100) 100%);
+    color:var(--paper-900);
+    border-radius:var(--r-lg);
+    box-shadow:var(--shadow-card);
+    padding:var(--s-8) var(--s-10);
+    position:relative;
+    overflow:hidden;
+  }
+  /* paper texture (subtle stripes) */
+  .card::before{
+    content:""; position:absolute; inset:0; pointer-events:none;
+    background-image:
+      repeating-linear-gradient(0deg, rgba(58,51,36,.025) 0 1px, transparent 1px 3px);
+    mix-blend-mode:multiply;
+  }
+  /* corner seal */
+  .card::after{
+    content:"千夜"; position:absolute; right:24px; top:24px;
+    font-family:var(--f-heading); font-weight:900;
+    color:var(--shu); font-size:13px;
+    letter-spacing:.1em;
+    border:1.5px solid var(--shu);
+    padding:6px 7px 4px;
+    line-height:1;
+    background:rgba(255,255,255,.3);
+    transform:rotate(-2deg);
+    writing-mode:vertical-rl;
+  }
+
+  .card-head{display:flex; align-items:flex-end; gap:var(--s-6); padding-right:60px}
+  .field-name{flex:1}
+  .field-name label{
+    display:block; font-family:var(--f-heading);
+    font-size:var(--t-xs); letter-spacing:.5em; color:var(--paper-700);
+    text-transform:uppercase; margin-bottom:6px;
+  }
+  .field-name input{
+    width:100%; background:transparent; border:0; border-bottom:1.5px solid var(--paper-300);
+    font-family:var(--f-heading); font-size:var(--t-3xl); font-weight:700;
+    color:var(--paper-900); padding:2px 0 4px; outline:none;
+  }
+  .field-name input:focus{border-color:var(--shu)}
+  .field-yomi{
+    width:200px;
+  }
+  .field-yomi label{
+    display:block; font-family:var(--f-heading);
+    font-size:var(--t-xs); letter-spacing:.4em; color:var(--paper-700); margin-bottom:6px;
+  }
+  .field-yomi input{
+    width:100%; background:transparent; border:0; border-bottom:1px solid var(--paper-300);
+    font-family:var(--f-body); font-size:var(--t-md);
+    color:var(--paper-800); padding:6px 0; outline:none;
+  }
+
+  /* class & level row */
+  .row-class{
+    margin-top:var(--s-6); display:grid;
+    grid-template-columns: 1.4fr .8fr .8fr;
+    gap:var(--s-5);
+    align-items:end;
+  }
+  .pf-field label{
+    display:block; font-family:var(--f-heading);
+    font-size:var(--t-xs); letter-spacing:.4em; color:var(--paper-700); margin-bottom:6px;
+  }
+  .select{
+    position:relative;
+  }
+  .select select{
+    appearance:none; -webkit-appearance:none;
+    width:100%;
+    background:rgba(255,255,255,.4);
+    border:1px solid var(--paper-300);
+    border-radius:var(--r-sm);
+    padding:10px 36px 10px 12px;
+    font-family:var(--f-heading); font-size:var(--t-lg); font-weight:500;
+    color:var(--paper-900); outline:none; cursor:pointer;
+  }
+  .select::after{
+    content:"▾"; position:absolute; right:12px; top:50%; transform:translateY(-50%);
+    color:var(--paper-700); pointer-events:none;
+  }
+  .select select:focus{border-color:var(--shu)}
+  .class-tag{
+    display:inline-block; margin-right:6px;
+    font-family:var(--f-mono); font-size:10px; letter-spacing:.1em;
+    padding:1px 5px; border-radius:2px;
+    color:var(--shu); border:1px solid var(--shu);
+  }
+
+  .level-control{
+    display:flex; align-items:stretch;
+    border:1px solid var(--paper-300);
+    border-radius:var(--r-sm);
+    background:rgba(255,255,255,.4);
+    overflow:hidden;
+  }
+  .level-control button{
+    width:36px; background:transparent; border:0;
+    font-family:var(--f-mono); font-size:var(--t-lg); color:var(--paper-700);
+    cursor:pointer;
+  }
+  .level-control button:hover{background:rgba(0,0,0,.05); color:var(--paper-900)}
+  .level-control input{
+    flex:1; background:transparent; border:0; text-align:center;
+    font-family:var(--f-mono); font-size:var(--t-2xl); font-weight:700;
+    color:var(--paper-900); width:60px; outline:none;
+  }
+  .dice-btn{
+    width:100%; padding:10px 12px;
+    background:var(--paper-900); color:var(--paper-50);
+    border:0; border-radius:var(--r-sm);
+    font-family:var(--f-heading); font-size:var(--t-md); font-weight:500;
+    letter-spacing:.3em; cursor:pointer; height:46px;
+    display:flex; align-items:center; justify-content:center; gap:8px;
+  }
+  .dice-btn:hover{background:var(--shu)}
+  .dice-btn .die{
+    width:14px; height:14px; border:1.5px solid currentColor; border-radius:2px;
+    position:relative;
+  }
+  .dice-btn .die::before, .dice-btn .die::after{
+    content:""; position:absolute; width:3px;height:3px;border-radius:50%;background:currentColor;
+  }
+  .dice-btn .die::before{top:2px;left:2px}
+  .dice-btn .die::after{bottom:2px;right:2px}
+
+  /* attribute & element block */
+  .ritual-divider{
+    margin:var(--s-8) 0 var(--s-6);
+    display:flex; align-items:center; gap:var(--s-3);
+    color:var(--paper-700);
+    font-family:var(--f-heading); font-size:var(--t-xs); letter-spacing:.5em;
+    text-transform:uppercase;
+  }
+  .ritual-divider::before, .ritual-divider::after{
+    content:""; flex:1; height:1px;
+    background:linear-gradient(90deg, transparent, var(--paper-300), transparent);
+  }
+  .ritual-divider .glyph{color:var(--shu); font-size:var(--t-md); letter-spacing:0}
+
+  .stat-grid{
+    display:grid; grid-template-columns:repeat(4,1fr); gap:var(--s-4);
+  }
+  .stat{
+    background:rgba(255,255,255,.35);
+    border:1px solid var(--paper-300);
+    border-radius:var(--r-md);
+    padding:var(--s-4);
+    text-align:center;
+    position:relative;
+  }
+  .stat .kanji{
+    font-family:var(--f-heading); font-weight:700; font-size:var(--t-xl);
+    color:var(--paper-800); letter-spacing:.05em;
+  }
+  .stat .romaji{
+    font-family:var(--f-mono); font-size:10px; letter-spacing:.2em;
+    color:var(--paper-700); margin-top:2px;
+  }
+  .stat .val-row{
+    margin-top:var(--s-3);
+    display:flex; align-items:center; justify-content:center; gap:var(--s-2);
+  }
+  .stat .step{
+    width:24px;height:24px; border:1px solid var(--paper-300);
+    background:transparent; border-radius:50%; cursor:pointer;
+    color:var(--paper-700); font-family:var(--f-mono); font-size:var(--t-md);
+  }
+  .stat .step:hover{border-color:var(--shu); color:var(--shu)}
+  .stat .v{
+    font-family:var(--f-mono); font-size:var(--t-3xl); font-weight:700;
+    color:var(--paper-900); min-width:34px; line-height:1;
+  }
+  .stat .pips{
+    display:flex; gap:3px; justify-content:center; margin-top:var(--s-2);
+  }
+  .stat .pip{
+    width:12px; height:4px; background:var(--paper-200); border-radius:1px;
+  }
+  .stat .pip.on{background:var(--paper-800)}
+
+  .elem-row{
+    margin-top:var(--s-4);
+    display:grid; grid-template-columns:auto repeat(5,1fr); gap:var(--s-3);
+    align-items:center;
+  }
+  .elem-row > .label{
+    font-family:var(--f-heading); font-size:var(--t-xs); letter-spacing:.5em;
+    color:var(--paper-700); text-transform:uppercase;
+  }
+  .elem{
+    display:flex; align-items:center; gap:8px; justify-content:center;
+    padding:8px 10px;
+    background:rgba(255,255,255,.35);
+    border:1px solid var(--paper-300); border-radius:var(--r-sm);
+  }
+  .elem .gl{
+    font-family:var(--f-heading); font-weight:700; font-size:var(--t-lg);
+    color:var(--paper-800);
+  }
+  .elem .v{
+    font-family:var(--f-mono); font-size:var(--t-lg); font-weight:700; color:var(--paper-900);
+  }
+  .elem.active{background:var(--shu); border-color:var(--shu); color:#fff}
+  .elem.active .gl, .elem.active .v{color:#fff}
+
+  /* skills table */
+  .sk-section{margin-top:var(--s-8)}
+  .sk-controls{
+    display:flex; justify-content:space-between; align-items:center; gap:var(--s-3);
+    margin-bottom:var(--s-3);
+  }
+  .sk-search{
+    flex:1; max-width:280px; position:relative;
+  }
+  .sk-search input{
+    width:100%; padding:8px 10px 8px 30px;
+    background:rgba(255,255,255,.4); border:1px solid var(--paper-300);
+    border-radius:var(--r-sm); font-family:var(--f-body); font-size:var(--t-sm);
+    color:var(--paper-900); outline:none;
+  }
+  .sk-search::before{
+    content:"⌕"; position:absolute; left:10px; top:50%; transform:translateY(-50%);
+    color:var(--paper-700); font-size:var(--t-md);
+  }
+  .sk-tabs{display:flex; gap:2px; font-family:var(--f-mono); font-size:var(--t-xs)}
+  .sk-tab{
+    padding:6px 10px; color:var(--paper-700); cursor:pointer;
+    border-bottom:2px solid transparent; letter-spacing:.1em;
+  }
+  .sk-tab.on{color:var(--paper-900); border-color:var(--shu); font-weight:700}
+
+  .sk-table{
+    width:100%; border-collapse:collapse;
+    font-size:var(--t-sm);
+  }
+  .sk-table thead th{
+    text-align:left; font-family:var(--f-heading); font-weight:500;
+    font-size:var(--t-xs); letter-spacing:.3em; color:var(--paper-700);
+    padding:8px 10px; border-bottom:1px solid var(--paper-300);
+    text-transform:uppercase;
+  }
+  .sk-table td{
+    padding:10px; vertical-align:top;
+    border-bottom:1px dashed var(--paper-200);
+  }
+  .sk-row.checked td{background:rgba(255,255,255,.5)}
+  .sk-row.checked td:first-child{box-shadow:inset 2px 0 0 var(--shu)}
+  .check{
+    width:18px;height:18px;border:1.5px solid var(--paper-700);
+    border-radius:3px; display:inline-flex; align-items:center; justify-content:center;
+    cursor:pointer;
+  }
+  .check.on{background:var(--paper-900); border-color:var(--paper-900)}
+  .check.on::after{content:"✓"; color:var(--paper-50); font-size:11px; line-height:1}
+  .sk-name{font-family:var(--f-heading); font-weight:700; color:var(--paper-900); font-size:var(--t-md)}
+  .sk-cat{
+    font-family:var(--f-mono); font-size:10px; letter-spacing:.1em;
+    color:var(--paper-700); padding:2px 6px;
+    border:1px solid var(--paper-300); border-radius:2px; display:inline-block;
+  }
+  .sk-cost{font-family:var(--f-mono); font-weight:500; color:var(--shu)}
+  .sk-effect{color:var(--paper-800); line-height:1.55; max-width:42ch}
+  .sk-restrict{font-family:var(--f-mono); font-size:11px; color:var(--paper-700)}
+
+  .sk-foot{
+    margin-top:var(--s-3); display:flex; justify-content:space-between; align-items:center;
+    font-family:var(--f-mono); font-size:var(--t-xs); color:var(--paper-700);
+  }
+  .add-skill{
+    background:transparent; border:1px dashed var(--paper-300);
+    color:var(--paper-700); padding:6px 12px; border-radius:var(--r-sm);
+    font-family:var(--f-body); font-size:var(--t-xs); letter-spacing:.2em; cursor:pointer;
+  }
+  .add-skill:hover{border-color:var(--shu); color:var(--shu)}
+
+  /* ---------- RIGHT: Derived stats ---------- */
+  .right-head{
+    display:flex; align-items:flex-start; justify-content:space-between;
+    margin-bottom:var(--s-5);
+  }
+  .right-head h2{
+    margin:0; font-family:var(--f-heading); font-size:var(--t-xl); font-weight:500;
+    letter-spacing:.3em; color:var(--ink-100);
+  }
+  .right-head .auto{
+    font-family:var(--f-mono); font-size:10px; letter-spacing:.2em; color:var(--ink-300);
+    border:1px solid var(--ink-500); padding:3px 8px; border-radius:999px;
+  }
+  .right-head .auto .pulse{
+    display:inline-block; width:6px;height:6px; background:var(--gold); border-radius:50%;
+    margin-right:6px; box-shadow:0 0 8px var(--gold);
+    animation:pulse 2s infinite;
+  }
+  @keyframes pulse{50%{opacity:.4}}
+
+  .vital{
+    background:linear-gradient(180deg,#1b1923, #15131c);
+    border:1px solid var(--ink-500);
+    border-radius:var(--r-md);
+    padding:var(--s-4) var(--s-5);
+    margin-bottom:var(--s-3);
+  }
+  .vital-head{
+    display:flex; justify-content:space-between; align-items:baseline;
+    margin-bottom:var(--s-2);
+  }
+  .vital-name{
+    font-family:var(--f-heading); font-size:var(--t-md); font-weight:500;
+    letter-spacing:.4em; color:var(--ink-200);
+  }
+  .vital-formula{font-family:var(--f-mono); font-size:10px; color:var(--ink-300); letter-spacing:.05em}
+  .vital-num{
+    display:flex; align-items:baseline; gap:6px;
+  }
+  .vital-num .big{
+    font-family:var(--f-mono); font-weight:700; font-size:var(--t-4xl);
+    color:var(--gold); line-height:1; letter-spacing:-.02em;
+  }
+  .vital-num .max{
+    font-family:var(--f-mono); font-size:var(--t-md); color:var(--ink-300);
+  }
+  .vital-bar{
+    margin-top:10px; height:4px; background:var(--ink-600); border-radius:2px; overflow:hidden;
+  }
+  .vital-bar i{display:block; height:100%; background:linear-gradient(90deg,var(--shu),var(--gold))}
+
+  .combat-grid{
+    display:grid; grid-template-columns:1fr 1fr; gap:var(--s-2);
+    margin-top:var(--s-5);
+  }
+  .combat{
+    background:var(--ink-700); border:1px solid var(--ink-500);
+    border-radius:var(--r-md);
+    padding:var(--s-3) var(--s-4);
+  }
+  .combat .lbl{
+    font-family:var(--f-heading); font-size:var(--t-xs); letter-spacing:.4em;
+    color:var(--ink-200); text-transform:uppercase;
+  }
+  .combat .v{
+    font-family:var(--f-mono); font-size:var(--t-2xl); font-weight:700;
+    color:var(--ink-100); line-height:1.1; margin-top:6px;
+  }
+  .combat .v .plus{color:var(--gold); font-size:var(--t-md); margin-left:4px}
+  .combat .breakdown{
+    font-family:var(--f-mono); font-size:10px; color:var(--ink-300);
+    margin-top:4px; letter-spacing:.05em;
+  }
+
+  .defense{
+    margin-top:var(--s-3);
+    background:linear-gradient(135deg,#2a1818, #15131c);
+    border:1px solid var(--shu-deep);
+    border-radius:var(--r-md);
+    padding:var(--s-4) var(--s-5);
+    display:flex; align-items:center; justify-content:space-between;
+  }
+  .defense .lbl{
+    font-family:var(--f-heading); font-size:var(--t-md); font-weight:700;
+    letter-spacing:.4em; color:var(--shu-soft);
+  }
+  .defense .v{
+    font-family:var(--f-mono); font-size:var(--t-3xl); font-weight:700; color:#fff;
+  }
+
+  /* export */
+  .export{
+    margin-top:var(--s-6);
+    border-top:1px solid var(--ink-500);
+    padding-top:var(--s-5);
+  }
+  .btn{
+    display:flex; align-items:center; justify-content:center; gap:8px;
+    width:100%; padding:12px;
+    border-radius:var(--r-sm);
+    font-family:var(--f-heading); font-size:var(--t-md); letter-spacing:.3em;
+    cursor:pointer; border:1px solid var(--ink-400); background:var(--ink-700);
+    color:var(--ink-100); margin-bottom:var(--s-2);
+  }
+  .btn:hover{border-color:var(--gold); color:var(--gold)}
+  .btn.primary{
+    background:var(--shu); border-color:var(--shu); color:#fff;
+  }
+  .btn.primary:hover{background:var(--shu-deep); border-color:var(--shu-deep); color:#fff}
+  .btn-grid{display:grid; grid-template-columns:1fr 1fr; gap:var(--s-2)}
+  .btn-sm{
+    padding:8px; font-size:var(--t-xs); letter-spacing:.2em;
+    background:transparent; border:1px solid var(--ink-500); color:var(--ink-200);
+    border-radius:var(--r-sm); cursor:pointer; font-family:var(--f-body);
+  }
+  .btn-sm:hover{border-color:var(--ink-300); color:var(--ink-100)}
+
+  /* watermark numerals running down right edge */
+  .watermark{
+    position:absolute; right:6px; top:0; bottom:0;
+    writing-mode:vertical-rl;
+    font-family:var(--f-mono); font-size:9px; color:var(--ink-400);
+    letter-spacing:.5em;
+    opacity:.6;
+    user-select:none;
+  }
+
+  /* ---------- Comments / annotations ---------- */
+  .annotate{
+    margin-top:var(--s-8);
+    padding:var(--s-5);
+    background:var(--ink-700);
+    border:1px dashed var(--ink-500);
+    border-radius:var(--r-md);
+    font-family:var(--f-mono); font-size:var(--t-xs);
+    color:var(--ink-200);
+    line-height:1.7;
+  }
+  .annotate b{color:var(--gold); font-weight:500}
+  .annotate ul{margin:4px 0 0 18px; padding:0}
+  .annotate li{margin:2px 0}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand">
+    <div class="mark"></div>
+    <div>
+      <div class="name">千夜月姫</div>
+      <div class="sub">Character Sheet · Console</div>
+    </div>
+  </div>
+  <div class="top-spacer"></div>
+  <div class="top-meta">
+    <span>SESSION <b>#03</b></span>
+    <span>LOOP <b>04 / 07</b></span>
+    <span>SAVED <b>14:22</b></span>
+  </div>
+  <span class="pill"><span class="dot"></span> 自動保存・離線</span>
+</div>
+
+<div class="app">
+
+  <!-- ========================= LEFT ========================= -->
+  <aside class="col left">
+    <div class="sec-label">
+      <span class="glyph">名簿</span><span>roster</span><span class="rule"></span><span class="ord">04</span>
+    </div>
+
+    <div class="roster">
+      <div class="ros-item">
+        <div class="ros-num">01</div>
+        <div>
+          <div class="ros-name">朱鷺宮 縁</div>
+          <div class="ros-meta">劍士 · Lv 4</div>
+        </div>
+        <div class="ros-lvl">42 HP</div>
+      </div>
+
+      <div class="ros-item active">
+        <div class="ros-num">02</div>
+        <div>
+          <div class="ros-name">久遠寺 透</div>
+          <div class="ros-meta">古神道 · Lv 6</div>
+        </div>
+        <div class="ros-lvl">58 HP</div>
+      </div>
+
+      <div class="ros-item">
+        <div class="ros-num">03</div>
+        <div>
+          <div class="ros-name">霧宮 茜</div>
+          <div class="ros-meta">超能力者 · Lv 3</div>
+        </div>
+        <div class="ros-lvl">31 HP</div>
+      </div>
+
+      <div class="ros-item">
+        <div class="ros-num">04</div>
+        <div>
+          <div class="ros-name">名無し</div>
+          <div class="ros-meta">— · Lv 1</div>
+        </div>
+        <div class="ros-lvl">— —</div>
+      </div>
+    </div>
+
+    <button class="ros-add">＋ 新規角色</button>
+
+    <div class="left-foot">
+      <div>切換 <span class="kbd">⌘1</span><span class="kbd">⌘2</span> ...</div>
+      <div>新增 <span class="kbd">⌘N</span>　刪除 <span class="kbd">⌘⌫</span></div>
+      <div>列印 <span class="kbd">⌘P</span>　匯出 <span class="kbd">⌘E</span></div>
+      <div style="margin-top:10px; opacity:.7">v0.1.0 · local-only</div>
+    </div>
+  </aside>
+
+
+  <!-- ========================= CENTER ========================= -->
+  <main class="col center">
+    <div class="sec-label">
+      <span class="glyph">本紙</span><span>character sheet</span><span class="rule"></span><span class="ord">02 / 04</span>
+    </div>
+
+    <article class="card">
+      <span class="watermark">PC・02・KUONJI・TOORU・LV6</span>
+
+      <!-- Name -->
+      <div class="card-head">
+        <div class="field-name">
+          <label>名 — name</label>
+          <input value="久遠寺 透" />
+        </div>
+        <div class="field-yomi">
+          <label>讀み — yomi</label>
+          <input value="クオンジ・トオル" />
+        </div>
+      </div>
+
+      <!-- Class & Level -->
+      <div class="row-class">
+        <div class="pf-field">
+          <label>級別 — class</label>
+          <div class="select">
+            <select>
+              <optgroup label="基本職">
+                <option>狩人</option>
+                <option>劍士</option>
+                <option>狩獵者</option>
+                <option>代行者</option>
+                <option>武鬥家</option>
+                <option>魔術師</option>
+                <option>超能力者</option>
+              </optgroup>
+              <optgroup label="進階職">
+                <option selected>古神道</option>
+                <option>異端</option>
+                <option>左道</option>
+                <option>策士</option>
+                <option>忍者</option>
+                <option>無名劍</option>
+                <option>風水士</option>
+              </optgroup>
+            </select>
+          </div>
+          <div style="margin-top:6px"><span class="class-tag">進階</span><span style="font-family:var(--f-mono); font-size:11px; color:var(--paper-700)">advanced · ritualist</span></div>
+        </div>
+
+        <div class="pf-field">
+          <label>等級 — level</label>
+          <div class="level-control">
+            <button>−</button>
+            <input value="6" />
+            <button>＋</button>
+          </div>
+        </div>
+
+        <div class="pf-field">
+          <label>　</label>
+          <button class="dice-btn"><span class="die"></span>擲骰起手 1D6+3</button>
+        </div>
+      </div>
+
+      <!-- Attributes -->
+      <div class="ritual-divider">
+        <span class="glyph">四</span><span>attributes</span><span class="glyph">五</span><span>elements</span>
+      </div>
+
+      <div class="stat-grid">
+        <div class="stat">
+          <div class="kanji">體力</div>
+          <div class="romaji">TAIRYOKU · BODY</div>
+          <div class="val-row">
+            <button class="step">−</button>
+            <span class="v">7</span>
+            <button class="step">＋</button>
+          </div>
+          <div class="pips">
+            <span class="pip on"></span><span class="pip on"></span><span class="pip on"></span>
+            <span class="pip on"></span><span class="pip on"></span><span class="pip on"></span>
+            <span class="pip on"></span><span class="pip"></span><span class="pip"></span><span class="pip"></span>
+          </div>
+        </div>
+
+        <div class="stat">
+          <div class="kanji">知覺</div>
+          <div class="romaji">CHIKAKU · SENSE</div>
+          <div class="val-row">
+            <button class="step">−</button>
+            <span class="v">5</span>
+            <button class="step">＋</button>
+          </div>
+          <div class="pips">
+            <span class="pip on"></span><span class="pip on"></span><span class="pip on"></span>
+            <span class="pip on"></span><span class="pip on"></span>
+            <span class="pip"></span><span class="pip"></span><span class="pip"></span><span class="pip"></span><span class="pip"></span>
+          </div>
+        </div>
+
+        <div class="stat">
+          <div class="kanji">理智</div>
+          <div class="romaji">RICHI · MIND</div>
+          <div class="val-row">
+            <button class="step">−</button>
+            <span class="v">8</span>
+            <button class="step">＋</button>
+          </div>
+          <div class="pips">
+            <span class="pip on"></span><span class="pip on"></span><span class="pip on"></span>
+            <span class="pip on"></span><span class="pip on"></span><span class="pip on"></span>
+            <span class="pip on"></span><span class="pip on"></span>
+            <span class="pip"></span><span class="pip"></span>
+          </div>
+        </div>
+
+        <div class="stat">
+          <div class="kanji">意志</div>
+          <div class="romaji">ISHI · WILL</div>
+          <div class="val-row">
+            <button class="step">−</button>
+            <span class="v">6</span>
+            <button class="step">＋</button>
+          </div>
+          <div class="pips">
+            <span class="pip on"></span><span class="pip on"></span><span class="pip on"></span>
+            <span class="pip on"></span><span class="pip on"></span><span class="pip on"></span>
+            <span class="pip"></span><span class="pip"></span><span class="pip"></span><span class="pip"></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="elem-row">
+        <div class="label">五大</div>
+        <div class="elem"><span class="gl">地</span><span class="v">2</span></div>
+        <div class="elem"><span class="gl">水</span><span class="v">3</span></div>
+        <div class="elem active"><span class="gl">火</span><span class="v">5</span></div>
+        <div class="elem"><span class="gl">風</span><span class="v">1</span></div>
+        <div class="elem"><span class="gl">空</span><span class="v">4</span></div>
+      </div>
+
+      <!-- Skills -->
+      <div class="sk-section">
+        <div class="ritual-divider">
+          <span class="glyph">特</span><span>special techniques</span><span class="glyph">技</span>
+        </div>
+
+        <div class="sk-controls">
+          <div class="sk-search"><input placeholder="検索 / 篩選特技..." /></div>
+          <div class="sk-tabs">
+            <span class="sk-tab on">已習得（4）</span>
+            <span class="sk-tab">古神道（12）</span>
+            <span class="sk-tab">共通（28）</span>
+            <span class="sk-tab">全て</span>
+          </div>
+        </div>
+
+        <table class="sk-table">
+          <thead>
+            <tr>
+              <th style="width:32px"></th>
+              <th style="width:110px">分類</th>
+              <th>名稱 / 效果</th>
+              <th style="width:110px">代價</th>
+              <th style="width:120px">取得限制</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="sk-row checked">
+              <td><span class="check on"></span></td>
+              <td><span class="sk-cat">常時</span></td>
+              <td>
+                <div class="sk-name">月讀の眼</div>
+                <div class="sk-effect">場面開始時，可指定一名 NPC，記錄其所在區位。本場面內，對該對象的判定 +1。</div>
+              </td>
+              <td><span class="sk-cost">— —</span></td>
+              <td><span class="sk-restrict">古神道 Lv 1+</span></td>
+            </tr>
+
+            <tr class="sk-row checked">
+              <td><span class="check on"></span></td>
+              <td><span class="sk-cat">主動</span></td>
+              <td>
+                <div class="sk-name">穢れ祓い</div>
+                <div class="sk-effect">消費 1 行動，移除自身或同區位一名同伴的「呪」「狂」異常狀態。一場面 1 回。</div>
+              </td>
+              <td><span class="sk-cost">TP 4</span></td>
+              <td><span class="sk-restrict">理智 5+</span></td>
+            </tr>
+
+            <tr class="sk-row checked">
+              <td><span class="check on"></span></td>
+              <td><span class="sk-cat">反應</span></td>
+              <td>
+                <div class="sk-name">繰り返しの記憶</div>
+                <div class="sk-effect">當判定失敗時，若曾經在前一個 loop 進行同樣判定且成功，可改為成功。每 loop 1 回。</div>
+              </td>
+              <td><span class="sk-cost">TP 6</span></td>
+              <td><span class="sk-restrict">記憶繼承 ON</span></td>
+            </tr>
+
+            <tr class="sk-row checked">
+              <td><span class="check on"></span></td>
+              <td><span class="sk-cat">主動</span></td>
+              <td>
+                <div class="sk-name">鳥居の境界</div>
+                <div class="sk-effect">於現在區位設置結界，妖魔系存在進入 / 離開時受 [理智] 點精神傷害。維持 3 回合。</div>
+              </td>
+              <td><span class="sk-cost">TP 8 · HP 2</span></td>
+              <td><span class="sk-restrict">古神道 Lv 4+</span></td>
+            </tr>
+
+            <tr class="sk-row">
+              <td><span class="check"></span></td>
+              <td><span class="sk-cat">主動</span></td>
+              <td>
+                <div class="sk-name">護符投擲</div>
+                <div class="sk-effect">射擊判定，命中時對目標造成 [理智+1d6] 點精神傷害；對妖魔系傷害加倍。</div>
+              </td>
+              <td><span class="sk-cost">TP 3</span></td>
+              <td><span class="sk-restrict">古神道 Lv 1+</span></td>
+            </tr>
+
+            <tr class="sk-row">
+              <td><span class="check"></span></td>
+              <td><span class="sk-cat">常時</span></td>
+              <td>
+                <div class="sk-name">夢見の素養</div>
+                <div class="sk-effect">睡眠時可選擇繼承前一 loop 的最後一場場面的記憶（一條）。</div>
+              </td>
+              <td><span class="sk-cost">— —</span></td>
+              <td><span class="sk-restrict">意志 4+</span></td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="sk-foot">
+          <span>選擇上限　4 / 4　·　Lv6 古神道</span>
+          <button class="add-skill">＋ 自訂特技</button>
+        </div>
+      </div>
+
+    </article>
+
+    <div class="annotate">
+      <b>// 設計筆記</b><br>
+      <ul>
+        <li>角色卡使用紙質卡片、圍繞工作室式深底；左右兩欄沉入暗背景，讓中央卡片有「儀式中央」的焦點。</li>
+        <li>朱印作裝飾，僅作視覺定錨；列印時保留以維持質感。</li>
+        <li>下一輪：(2) 多角色管理面板的折疊狀態 (3) 劇本特化欄位 collapsible (4) 匯出對話框（4 種格式預覽） (5) 列印模式 A4。</li>
+      </ul>
+    </div>
+  </main>
+
+
+  <!-- ========================= RIGHT ========================= -->
+  <aside class="col right">
+    <div class="sec-label">
+      <span class="glyph">派生</span><span>derived</span><span class="rule"></span><span class="ord">live</span>
+    </div>
+
+    <div class="right-head">
+      <h2>戰闘値</h2>
+      <span class="auto"><span class="pulse"></span>自動算定</span>
+    </div>
+
+    <!-- HP / TP -->
+    <div class="vital">
+      <div class="vital-head">
+        <span class="vital-name">HP — 生命</span>
+        <span class="vital-formula">体力 × 6 + Lv × 2</span>
+      </div>
+      <div class="vital-num">
+        <span class="big">54</span>
+        <span class="max">/ 54</span>
+      </div>
+      <div class="vital-bar"><i style="width:100%"></i></div>
+    </div>
+
+    <div class="vital">
+      <div class="vital-head">
+        <span class="vital-name">TP — 気力</span>
+        <span class="vital-formula">理智 × 4 + 意志 × 2 + Lv</span>
+      </div>
+      <div class="vital-num">
+        <span class="big">50</span>
+        <span class="max">/ 50</span>
+      </div>
+      <div class="vital-bar"><i style="width:88%; background:linear-gradient(90deg,var(--kon),var(--gold))"></i></div>
+    </div>
+
+    <!-- Combat values -->
+    <div class="combat-grid">
+      <div class="combat">
+        <div class="lbl">近戰</div>
+        <div class="v">11<span class="plus">+1d</span></div>
+        <div class="breakdown">体力 7 + Lv/2 + 火 1</div>
+      </div>
+      <div class="combat">
+        <div class="lbl">射擊</div>
+        <div class="v">9<span class="plus">+1d</span></div>
+        <div class="breakdown">知覺 5 + Lv/2 + 風 1</div>
+      </div>
+      <div class="combat">
+        <div class="lbl">精神</div>
+        <div class="v">14<span class="plus">+1d</span></div>
+        <div class="breakdown">理智 8 + Lv/2 + 空 3</div>
+      </div>
+      <div class="combat">
+        <div class="lbl">行動</div>
+        <div class="v">10<span class="plus">+1d</span></div>
+        <div class="breakdown">意志 6 + Lv/2 + 風 1</div>
+      </div>
+    </div>
+
+    <!-- Defense -->
+    <div class="defense">
+      <span class="lbl">防禦點</span>
+      <span class="v">13</span>
+    </div>
+
+    <!-- Export -->
+    <div class="export">
+      <button class="btn primary">⎙ 匯出 / 列印</button>
+      <div class="btn-grid" style="margin-top:8px">
+        <button class="btn-sm">Markdown</button>
+        <button class="btn-sm">BBCode</button>
+        <button class="btn-sm">列印 A4</button>
+        <button class="btn-sm">ccfolia</button>
+      </div>
+      <div style="margin-top:14px; font-family:var(--f-mono); font-size:10px; color:var(--ink-300); letter-spacing:.05em; line-height:1.6">
+        最後匯出 14:08 · ccfolia.json<br>
+        資料保存於 localStorage · 不上傳
+      </div>
+    </div>
+
+  </aside>
+</div>
+
+<!-- ========== Design tokens summary (visible at the bottom) ========== -->
+<section style="padding:48px 32px 64px; max-width:1200px; margin:0 auto; color:var(--ink-100); font-family:var(--f-body); font-size:13px; line-height:1.7">
+  <div style="font-family:var(--f-heading); font-size:20px; letter-spacing:.3em; color:var(--gold); border-bottom:1px solid var(--ink-500); padding-bottom:12px; margin-bottom:24px">
+    DESIGN TOKENS
+  </div>
+
+  <div style="display:grid; grid-template-columns:repeat(2,1fr); gap:32px">
+    <!-- Colors -->
+    <div>
+      <div style="font-family:var(--f-mono); font-size:11px; letter-spacing:.3em; color:var(--ink-300); margin-bottom:10px">// COLORS — INK</div>
+      <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:6px; font-family:var(--f-mono); font-size:10px">
+        <div><div style="height:42px;background:#0e0d10;border:1px solid #2a2932"></div>ink-900<br>#0E0D10</div>
+        <div><div style="height:42px;background:#15141a"></div>ink-800<br>#15141A</div>
+        <div><div style="height:42px;background:#1c1b22"></div>ink-700<br>#1C1B22</div>
+        <div><div style="height:42px;background:#26242d"></div>ink-600<br>#26242D</div>
+        <div><div style="height:42px;background:#312f3a"></div>ink-500<br>#312F3A</div>
+        <div><div style="height:42px;background:#43404d"></div>ink-400<br>#43404D</div>
+        <div><div style="height:42px;background:#6a6675"></div>ink-300<br>#6A6675</div>
+        <div><div style="height:42px;background:#a09bab"></div>ink-200<br>#A09BAB</div>
+      </div>
+
+      <div style="font-family:var(--f-mono); font-size:11px; letter-spacing:.3em; color:var(--ink-300); margin:18px 0 10px">// COLORS — PAPER</div>
+      <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:6px; font-family:var(--f-mono); font-size:10px">
+        <div><div style="height:42px;background:#f6f1e6"></div><span>paper-50<br>#F6F1E6</span></div>
+        <div><div style="height:42px;background:#ece5d3"></div><span>paper-100<br>#ECE5D3</span></div>
+        <div><div style="height:42px;background:#d9cfb4"></div><span>paper-200<br>#D9CFB4</span></div>
+        <div><div style="height:42px;background:#b8a986"></div><span>paper-300<br>#B8A986</span></div>
+        <div><div style="height:42px;background:#5a4f37"></div><span>paper-700<br>#5A4F37</span></div>
+        <div><div style="height:42px;background:#3a3324"></div><span>paper-800<br>#3A3324</span></div>
+        <div><div style="height:42px;background:#1f1c14"></div><span>paper-900<br>#1F1C14</span></div>
+      </div>
+
+      <div style="font-family:var(--f-mono); font-size:11px; letter-spacing:.3em; color:var(--ink-300); margin:18px 0 10px">// COLORS — ACCENT</div>
+      <div style="display:grid; grid-template-columns:repeat(5,1fr); gap:6px; font-family:var(--f-mono); font-size:10px">
+        <div><div style="height:42px;background:#7a1f17"></div>shu-deep<br>#7A1F17</div>
+        <div><div style="height:42px;background:#b3392c"></div>shu<br>#B3392C</div>
+        <div><div style="height:42px;background:#e57364"></div>shu-soft<br>#E57364</div>
+        <div><div style="height:42px;background:#c8a96a"></div>gold<br>#C8A96A</div>
+        <div><div style="height:42px;background:#e9d8a8"></div>gold-soft<br>#E9D8A8</div>
+        <div><div style="height:42px;background:#2a3a52"></div>kon<br>#2A3A52</div>
+      </div>
+    </div>
+
+    <!-- Type / spacing / radii -->
+    <div>
+      <div style="font-family:var(--f-mono); font-size:11px; letter-spacing:.3em; color:var(--ink-300); margin-bottom:10px">// TYPE — FAMILIES</div>
+      <div style="display:grid; gap:8px; font-size:13px">
+        <div><span style="font-family:var(--f-heading); font-size:22px; color:var(--gold)">千夜月姫 ・ Heading</span><br><code style="font-family:var(--f-mono); font-size:11px; color:var(--ink-300)">--f-heading: "Noto Serif JP", "Songti SC", "Yu Mincho", serif</code></div>
+        <div style="margin-top:8px"><span style="font-family:var(--f-body); font-size:14px;">本文 Body — Inter / Noto Sans JP fallback</span><br><code style="font-family:var(--f-mono); font-size:11px; color:var(--ink-300)">--f-body: "Inter", "Noto Sans JP", "Hiragino Sans", sans-serif</code></div>
+        <div style="margin-top:8px"><span style="font-family:var(--f-mono); font-size:13px;">MONO 0123456789 +1d6</span><br><code style="font-family:var(--f-mono); font-size:11px; color:var(--ink-300)">--f-mono: "JetBrains Mono", "SF Mono", monospace</code></div>
+      </div>
+
+      <div style="font-family:var(--f-mono); font-size:11px; letter-spacing:.3em; color:var(--ink-300); margin:18px 0 10px">// TYPE — SCALE</div>
+      <div style="font-family:var(--f-mono); font-size:11px; line-height:1.9; color:var(--ink-200)">
+        --t-xs   11px ・ caption / kbd<br>
+        --t-sm   12px ・ secondary<br>
+        --t-base 13px ・ body default<br>
+        --t-md   14px ・ body large / button<br>
+        --t-lg   16px ・ small heading<br>
+        --t-xl   20px ・ section h2<br>
+        --t-2xl  26px ・ stat number<br>
+        --t-3xl  34px ・ name / vital<br>
+        --t-4xl  48px ・ HP / TP<br>
+      </div>
+
+      <div style="font-family:var(--f-mono); font-size:11px; letter-spacing:.3em; color:var(--ink-300); margin:18px 0 10px">// SPACING — 4PX BASE</div>
+      <div style="font-family:var(--f-mono); font-size:11px; line-height:1.9; color:var(--ink-200)">
+        --s-1 4 ・ --s-2 8 ・ --s-3 12 ・ --s-4 16 ・ --s-5 20<br>
+        --s-6 24 ・ --s-8 32 ・ --s-10 40 ・ --s-12 48 ・ --s-16 64
+      </div>
+
+      <div style="font-family:var(--f-mono); font-size:11px; letter-spacing:.3em; color:var(--ink-300); margin:18px 0 10px">// RADII / SHADOWS</div>
+      <div style="font-family:var(--f-mono); font-size:11px; line-height:1.9; color:var(--ink-200)">
+        --r-sm 2px ・ --r-md 4px ・ --r-lg 8px ・ --r-xl 14px<br>
+        --shadow-sm  0 1px 0 rgba(0,0,0,.4), 0 1px 2px rgba(0,0,0,.3)<br>
+        --shadow-md  0 2px 6px rgba(0,0,0,.45), 0 8px 24px rgba(0,0,0,.35)<br>
+        --shadow-card  0 1px 0 rgba(255,255,255,.04) inset, 0 12px 40px rgba(0,0,0,.55), 0 2px 0 rgba(0,0,0,.4)
+      </div>
+    </div>
+  </div>
+</section>
+
+</body>
+</html>
