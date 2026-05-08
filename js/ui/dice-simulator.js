@@ -2,6 +2,7 @@
 
 import { getActiveCard } from '../helpers.js';
 import { deriveAll } from '../derive.js';
+import { getLoadedLevelMap } from '../data-loader.js';
 
 const COMBAT_KEYS = [
   ['melee',   '近戰'],
@@ -51,7 +52,7 @@ export function mountDiceSimulator(rootEl, store) {
   // 更新下拉選項中的「+數值」（戰鬥值會跟 store 變動）
   function updateCombatSelect() {
     const card = getActiveCard(store.getState());
-    const d = card ? deriveAll(card) : null;
+    const d = card ? deriveAll(card, getLoadedLevelMap()) : null;
     const prevValue = select.value || 'melee';
     select.innerHTML = COMBAT_KEYS.map(([k, label]) => {
       const v = d ? d.combat[k] : 0;
@@ -87,7 +88,7 @@ export function mountDiceSimulator(rootEl, store) {
     const action = e.target.dataset?.action;
     if (action === 'roll-2d6') {
       const card = getActiveCard(store.getState());
-      const d = card ? deriveAll(card) : null;
+      const d = card ? deriveAll(card, getLoadedLevelMap()) : null;
       const key = select.value || 'melee';
       const bonus = d ? (d.combat[key] || 0) : 0;
       const modifier = Number(modInp.value) || 0;

@@ -129,8 +129,8 @@ function settingSection(s) {
   return out ? section('角色設定', out) : '';
 }
 
-export function toBBCode(card) {
-  const d = deriveAll(card);
+export function toBBCode(card, levelDataMap) {
+  const d = deriveAll(card, levelDataMap);
   const lv = d.characterLevel;
   const head = card.meta.yomi
     ? `[size=18][b]${card.meta.name || '無名'}[/b][/size]　[size=12][i]${card.meta.yomi}[/i][/size]`

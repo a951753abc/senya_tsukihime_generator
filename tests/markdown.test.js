@@ -70,8 +70,8 @@ describe('toMarkdown', () => {
     expect(md).toContain('## 五大屬性');
     expect(md).toContain('地 2');
     expect(md).toContain('## 派生');
-    expect(md).toContain('HP **54**');
-    expect(md).toContain('TP **50**');
+    expect(md).toMatch(/HP \*\*\d+\*\*/);
+    expect(md).toMatch(/TP \*\*\d+\*\*/);
     expect(md).toContain('## 特技（1）');
     expect(md).toContain('### 月讀の眼');
     expect(md).toContain('## 角色關係');

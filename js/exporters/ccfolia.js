@@ -41,8 +41,8 @@ function buildCommands(card, d) {
   return lines.join('\n');
 }
 
-export function toCcfolia(card) {
-  const d = deriveAll(card);
+export function toCcfolia(card, levelDataMap) {
+  const d = deriveAll(card, levelDataMap);
   const totals = d.totals;
 
   const params = [

@@ -119,8 +119,8 @@ function settingSection(s) {
   return out ? '\n## 角色設定\n' + out : '';
 }
 
-export function toMarkdown(card) {
-  const d = deriveAll(card);
+export function toMarkdown(card, levelDataMap) {
+  const d = deriveAll(card, levelDataMap);
   const lv = d.characterLevel;
   const head = card.meta.yomi
     ? `# ${card.meta.name || '無名'} — ${card.meta.yomi}`

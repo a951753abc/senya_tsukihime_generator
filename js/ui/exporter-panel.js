@@ -9,6 +9,12 @@ import { toCcfolia } from '../exporters/ccfolia.js';
 import { exportCardPng } from '../exporters/png.js';
 import { exportCharacterJson, pickAndImportJson } from '../exporters/json-io.js';
 import { encodeCardToUrl } from '../exporters/url-share.js';
+import { preloadLevels, getLoadedLevelMap } from '../data-loader.js';
+
+async function withLevelData(card) {
+  await preloadLevels(card.classes.map(c => c.id).filter(Boolean));
+  return getLoadedLevelMap();
+}
 
 function safeFilename(s) {
   return String(s || '無名').replace(/[\\/:*?"<>|]/g, '_').slice(0, 60);
@@ -73,7 +79,8 @@ export function mountExporterPanel(rootEl, store) {
       btn.title = '產 Markdown 並複製到剪貼簿';
       btn.addEventListener('click', async () => {
         const card = getCard(); if (!card) return;
-        const md = toMarkdown(card);
+        const map = await withLevelData(card);
+        const md = toMarkdown(card, map);
         try {
           await copyToClipboard(md);
           flashStatus(meta, `Markdown 已複製（${md.length} 字）`);
@@ -86,7 +93,8 @@ export function mountExporterPanel(rootEl, store) {
       btn.title = '產 BBCode 並複製到剪貼簿';
       btn.addEventListener('click', async () => {
         const card = getCard(); if (!card) return;
-        const bb = toBBCode(card);
+        const map = await withLevelData(card);
+        const bb = toBBCode(card, map);
         try {
           await copyToClipboard(bb);
           flashStatus(meta, `BBCode 已複製（${bb.length} 字）`);
@@ -100,9 +108,10 @@ export function mountExporterPanel(rootEl, store) {
     } else if (label === 'ccfolia') {
       btn.disabled = false;
       btn.title = 'ccfolia 角色卡 JSON 下載（schema 為通用格式，user 實測後若有偏差再調）';
-      btn.addEventListener('click', () => {
+      btn.addEventListener('click', async () => {
         const card = getCard(); if (!card) return;
-        const obj = toCcfolia(card);
+        const map = await withLevelData(card);
+        const obj = toCcfolia(card, map);
         downloadJson(obj, `${safeFilename(card.meta?.name)}.ccfolia.json`);
         flashStatus(meta, `已匯出 ccfolia JSON`);
       });

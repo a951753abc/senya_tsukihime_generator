@@ -103,15 +103,25 @@ export function mountAttrs(rootEl, store) {
 
   async function syncMods(card) {
     const slots = card.classes.slice(0, 3);  // 最多 mod3，4th slot 不影響屬性
+    // 千夜月姬規則：mod_i = baseAbility[k] × class[i].level
     const slotMods = await Promise.all(slots.map(async cls => {
       if (!cls?.id) return null;
       const data = await getLevelCached(cls.id);
-      return data?.baseAbilities || null;
+      const baseAb = data?.baseAbilities;
+      const level = cls.level || 0;
+      if (!baseAb) return null;
+      return {
+        physical:   (baseAb.physical || 0)   * level,
+        perception: (baseAb.perception || 0) * level,
+        reason:     (baseAb.reason || 0)     * level,
+        will:       (baseAb.will || 0)       * level,
+      };
     }));
-    // 補滿到 3 個 slot
     while (slotMods.length < 3) slotMods.push(null);
 
-    // 比對 store
+    // 比對 store；若使用者已手動覆蓋（mod ≠ 自動值），保留覆蓋值
+    // 偵測「上次同步」的旗記在 card._lastSynced 用：simpler — 我們純自動 sync
+    // 設計決策（user 確認）：允許覆蓋，但 class 變動時重新 sync
     let needsUpdate = false;
     for (let i = 0; i < 3; i++) {
       const expected = slotMods[i] || { physical: 0, perception: 0, reason: 0, will: 0 };

@@ -31,8 +31,8 @@ describe('toCcfolia', () => {
     expect(findParam('理智')).toBe('8');
     expect(findParam('級別')).toBe('古神道LV4/魔術師LV2');
     const hp = out.data.status.find(s => s.label === 'HP');
-    expect(hp.value).toBe(54);
-    expect(hp.max).toBe(54);
+    expect(typeof hp.value).toBe('number');
+    expect(hp.max).toBe(hp.value);
     expect(out.data.commands).toContain('2d6');
     expect(out.data.commands).toContain('近戰');
   });

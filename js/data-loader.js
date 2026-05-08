@@ -34,3 +34,22 @@ export function loadEmotions() {
 export function clearCache() {
   cache.clear();
 }
+
+/** 預載多個級別資料；之後可同步取用 */
+export async function preloadLevels(classIds) {
+  await Promise.all(
+    classIds
+      .filter(id => id && !cache.has(`./data/levels/${id}.json`))
+      .map(id => loadLevel(id).catch(() => null))
+  );
+}
+
+/** 取得已載入的級別資料 Map（同步） */
+export function getLoadedLevelMap() {
+  const map = new Map();
+  for (const [path, data] of cache.entries()) {
+    const m = path.match(/levels\/([^/]+)\.json$/);
+    if (m && data) map.set(m[1], data);
+  }
+  return map;
+}

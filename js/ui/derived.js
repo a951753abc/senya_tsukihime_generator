@@ -2,15 +2,14 @@
 
 import { getActiveCard } from '../helpers.js';
 import { deriveAll } from '../derive.js';
+import { preloadLevels, getLoadedLevelMap } from '../data-loader.js';
 
 export function mountDerived(rootEl, store) {
-  // 結構已在 index.html，這裡只更新值
   const $ = sel => rootEl.querySelector(sel);
 
-  function update() {
+  async function update() {
     const card = getActiveCard(store.getState());
     if (!card) {
-      // 沒有 active card 時清空
       $('[data-d="hp"]').textContent = '—';
       $('[data-d="tp"]').textContent = '—';
       ['melee', 'ranged', 'psychic', 'action'].forEach(k => {
@@ -22,33 +21,34 @@ export function mountDerived(rootEl, store) {
       $('[data-d="bond-note"]').textContent = '';
       return;
     }
-    const d = deriveAll(card);
+    // 預載各級別資料 → 取 levelDataMap
+    await preloadLevels(card.classes.map(c => c.id).filter(Boolean));
+    const levelDataMap = getLoadedLevelMap();
+    const d = deriveAll(card, levelDataMap);
 
     // HP
-    const hpBig = $('[data-d="hp"]');
+    $('[data-d="hp"]').textContent = d.hp;
     const hpMax = $('[data-d="hp-max"]');
-    hpBig.textContent = d.hp;
     if (hpMax) hpMax.textContent = `/ ${d.hp} MAX`;
     const hpBar = $('[data-d="hp-bar"]');
     if (hpBar) hpBar.style.width = '100%';
 
     // TP
-    const tpBig = $('[data-d="tp"]');
+    $('[data-d="tp"]').textContent = d.tp;
     const tpMax = $('[data-d="tp-max"]');
-    tpBig.textContent = d.tp;
     if (tpMax) tpMax.textContent = `/ ${d.tp} MAX`;
     const tpBar = $('[data-d="tp-bar"]');
     if (tpBar) tpBar.style.width = '100%';
 
-    // 4 戰鬥值 — 顯示為 紅利_X + 紅利_Y + Lv/2 + 元素
-    const lv = d.characterLevel;
-    const halfLv = Math.floor(lv / 2);
+    // 4 戰鬥值 — breakdown 顯示「紅利+紅利+級別修正」
     const b = d.bonus;
+    const m = d.modSum;
+    const fmtMod = n => n > 0 ? `+${n}` : (n < 0 ? `${n}` : '+0');
     const breakdowns = {
-      melee:   `紅利体${b.physical}+知${b.perception}+Lv/2(${halfLv})+火${card.stats.elements.fire || 0}`,
-      ranged:  `紅利知${b.perception}+理${b.reason}+Lv/2(${halfLv})+風${card.stats.elements.wind || 0}`,
-      psychic: `紅利理${b.reason}+意${b.will}+Lv/2(${halfLv})+空${card.stats.elements.void || 0}`,
-      action:  `紅利体${b.physical}+意${b.will}+Lv/2(${halfLv})+風${card.stats.elements.wind || 0}`,
+      melee:   `紅利 体${b.physical}+知${b.perception} ${fmtMod(m.melee)}`,
+      ranged:  `紅利 知${b.perception}+理${b.reason} ${fmtMod(m.ranged)}`,
+      psychic: `紅利 理${b.reason}+意${b.will} ${fmtMod(m.psychic)}`,
+      action:  `紅利 体${b.physical}+意${b.will} ${fmtMod(m.action)}`,
     };
     for (const k of ['melee', 'ranged', 'psychic', 'action']) {
       const box = $(`[data-d-combat="${k}"]`);

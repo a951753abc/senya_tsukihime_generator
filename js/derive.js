@@ -1,24 +1,30 @@
 /**
- * 派生公式 — 純函式，無副作用
+ * 派生公式 — 純函式，無副作用。
  *
- * 千夜月姬規則：
- *   能力紅利_X = ⌊total_X / 3⌋   ←判定用的關鍵值
+ * 千夜月姬權威公式（依 charcard.xlsx 角色卡工作表逆向）：
  *
- * 戰鬥值（用紅利，不是合計直接加）：
- *   近戰  = 紅利_體力 + 紅利_知覺 + ⌊Lv/2⌋ + 火
- *   射擊  = 紅利_知覺 + 紅利_理智 + ⌊Lv/2⌋ + 風
- *   精神  = 紅利_理智 + 紅利_意志 + ⌊Lv/2⌋ + 空
- *   行動  = 紅利_體力 + 紅利_意志 + ⌊Lv/2⌋ + 風
+ *   合計_X = base + mod1 + mod2 + mod3 + special
+ *     其中 mod_i = class[i].baseAbility[X] × class[i].level（attrs.js 自動同步）
  *
- * HP / TP（用合計，沿用 v3 設計）：
- *   HP = 体力_total × 6 + Lv × 2
- *   TP = 理智_total × 4 + 意志_total × 2 + Lv
+ *   能力紅利_X = ⌊合計_X / 3⌋   ←判定用
  *
- * 防禦：0（Phase 1-D 後從級別 modifierTable 取）
+ *   modSum.Y = Σ class[i].modifierTable.Y[class[i].level - 1]   ← 每個級別槽的修正合計
  *
- * 合計     = base + mod1 + mod2 + mod3 + special
- * Lv       = sum(classes[i].level)
- * 羈絆     = pure: |bond| where tone=pure；crazy: |bond| where tone=crazy；total: bond 直接相加
+ *   戰鬥值（紅利兩兩相加 + 級別修正）：
+ *     近戰 = 紅利_體 + 紅利_知 + modSum.melee
+ *     射擊 = 紅利_知 + 紅利_理 + modSum.ranged
+ *     精神 = 紅利_理 + 紅利_意 + modSum.psychic
+ *     行動 = 紅利_體 + 紅利_意 + modSum.action
+ *
+ *   HP = (紅利_體 + 紅利_理) × max(角色等級, 5) + modSum.hp
+ *   TP = (紅利_知 + 紅利_意) × 5                + modSum.tp
+ *   防禦 = modSum.defense
+ *
+ *   合計     = base + mod1 + mod2 + mod3 + special
+ *   角色等級 = sum(classes[i].level)
+ *   羈絆     = pure: |bond| where tone=pure；crazy: |bond| where tone=crazy；total: bond 直接相加
+ *
+ *   注：元素（地水火風空 + 例外）為獨立資訊欄，不直接加進戰鬥值。
  */
 
 export function abilityTotal(cell) {
@@ -41,7 +47,6 @@ export function characterLevel(classes) {
 }
 
 export function abilityToPercent(value) {
-  // Linear map [1, 10] -> [0%, 100%]
   const clamped = Math.max(1, Math.min(10, value));
   return ((clamped - 1) / 9) * 100;
 }
@@ -58,9 +63,36 @@ export function deriveBond(relationships) {
   return acc;
 }
 
-export function deriveAll(character) {
+const MOD_KEYS = ['melee', 'ranged', 'psychic', 'action', 'hp', 'tp', 'defense'];
+
+/**
+ * 累加每個級別槽的 modifierTable 修正。
+ * @param {Array} classes - card.classes
+ * @param {Map<string, object>} levelDataMap - classId → level JSON
+ * @returns {Object} modSum {melee, ranged, psychic, action, hp, tp, defense}
+ */
+export function computeModSum(classes, levelDataMap) {
+  const sum = Object.fromEntries(MOD_KEYS.map(k => [k, 0]));
+  if (!Array.isArray(classes) || !levelDataMap) return sum;
+  for (const cls of classes) {
+    if (!cls?.id) continue;
+    const data = levelDataMap.get(cls.id);
+    if (!data?.modifierTable) continue;
+    const idx = Math.min(Math.max(cls.level || 1, 1), 10) - 1;
+    for (const k of MOD_KEYS) {
+      const arr = data.modifierTable[k];
+      if (Array.isArray(arr)) sum[k] += arr[idx] || 0;
+    }
+  }
+  return sum;
+}
+
+/**
+ * @param {object} character - 角色卡
+ * @param {Map<string, object>} [levelDataMap] - 預載的級別資料；缺省時 modSum 全 0
+ */
+export function deriveAll(character, levelDataMap) {
   const a = character.stats.abilities;
-  const e = character.stats.elements;
 
   const totals = {
     physical:   abilityTotal(a.physical),
@@ -69,7 +101,6 @@ export function deriveAll(character) {
     will:       abilityTotal(a.will),
   };
 
-  // 能力紅利 — 判定用，⌊合計/3⌋
   const bonus = {
     physical:   abilityBonus(totals.physical),
     perception: abilityBonus(totals.perception),
@@ -78,23 +109,22 @@ export function deriveAll(character) {
   };
 
   const lv = characterLevel(character.classes);
-  const halfLv = Math.floor(lv / 2);
+  const modSum = computeModSum(character.classes, levelDataMap || new Map());
 
-  // HP / TP — 沿用 v3 設計（用合計）
-  const hp = totals.physical * 6 + lv * 2;
-  const tp = totals.reason * 4 + totals.will * 2 + lv;
+  // HP / TP — (紅利+紅利) × multiplier + modSum
+  const hp = (bonus.physical + bonus.reason) * Math.max(lv, 5) + modSum.hp;
+  const tp = (bonus.perception + bonus.will) * 5            + modSum.tp;
 
-  // 戰鬥值 — 千夜月姬規則：兩個能力紅利之和 + ⌊Lv/2⌋ + 元素
+  // 戰鬥值 — 紅利兩兩相加 + 級別修正
   const combat = {
-    melee:   bonus.physical   + bonus.perception + halfLv + (e.fire || 0),
-    ranged:  bonus.perception + bonus.reason     + halfLv + (e.wind || 0),
-    psychic: bonus.reason     + bonus.will       + halfLv + (e.void || 0),
-    action:  bonus.physical   + bonus.will       + halfLv + (e.wind || 0),
+    melee:   bonus.physical   + bonus.perception + modSum.melee,
+    ranged:  bonus.perception + bonus.reason     + modSum.ranged,
+    psychic: bonus.reason     + bonus.will       + modSum.psychic,
+    action:  bonus.physical   + bonus.will       + modSum.action,
   };
 
-  const defense = 0; // TODO: Phase 1-D 後從級別 modifierTable 取
-
+  const defense = modSum.defense;
   const bond = deriveBond(character.relationships);
 
-  return { totals, bonus, characterLevel: lv, hp, tp, combat, defense, bond };
+  return { totals, bonus, characterLevel: lv, hp, tp, combat, defense, bond, modSum };
 }
