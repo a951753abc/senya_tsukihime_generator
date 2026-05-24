@@ -84,7 +84,7 @@ describe('deriveBond — 羈絆值合計', () => {
 describe('deriveAll — 千夜月姬權威公式', () => {
   function richChar() {
     const c = defaultCharacter();
-    // 假設 attrs.js 已 sync 好（mod_i = baseAbility[k] × cls.level）
+    // 假設 attrs.js 已 sync 好（mod_i = class baseAbility[k]，升級不重複加算）
     // 體 7 = 4+2+1，知 5 = 3+1+1，理 8 = 5+2+0+0+1，意 6 = 4+1+1
     c.stats.abilities.physical   = { base: 4, mod1: 2, mod2: 1, mod3: 0, special: 0 };
     c.stats.abilities.perception = { base: 3, mod1: 1, mod2: 1, mod3: 0, special: 0 };
@@ -214,12 +214,12 @@ describe('deriveAll — 千夜月姬權威公式', () => {
 describe('deriveAll — 你舉的範例：起始選擇魔術師三等', () => {
   test('魔術師 LV3 純單一級別，公式驗算', () => {
     const c = defaultCharacter();
-    // 規則：mod_1 = baseAbility × level
+    // 規則：mod_1 = baseAbility；等級成長由 modifierTable 處理
     // 魔術師 baseAbility = {體 2, 知 3, 理 5, 意 2}, level=3
-    c.stats.abilities.physical   = { base: 0, mod1: 2*3, mod2: 0, mod3: 0, special: 0 }; // 6
-    c.stats.abilities.perception = { base: 0, mod1: 3*3, mod2: 0, mod3: 0, special: 0 }; // 9
-    c.stats.abilities.reason     = { base: 0, mod1: 5*3, mod2: 0, mod3: 0, special: 0 }; // 15
-    c.stats.abilities.will       = { base: 0, mod1: 2*3, mod2: 0, mod3: 0, special: 0 }; // 6
+    c.stats.abilities.physical   = { base: 0, mod1: 2, mod2: 0, mod3: 0, special: 0 };
+    c.stats.abilities.perception = { base: 0, mod1: 3, mod2: 0, mod3: 0, special: 0 };
+    c.stats.abilities.reason     = { base: 0, mod1: 5, mod2: 0, mod3: 0, special: 0 };
+    c.stats.abilities.will       = { base: 0, mod1: 2, mod2: 0, mod3: 0, special: 0 };
     c.classes = [{ id: 'majutushi', level: 3, isPrimary: true }];
 
     // 魔術師 modifierTable @ lv3 (idx=2)
@@ -237,16 +237,16 @@ describe('deriveAll — 你舉的範例：起始選擇魔術師三等', () => {
     const map = new Map([['majutushi', mjData]]);
     const d = deriveAll(c, map);
 
-    expect(d.totals).toEqual({ physical: 6, perception: 9, reason: 15, will: 6 });
-    expect(d.bonus).toEqual({ physical: 2, perception: 3, reason: 5, will: 2 });
+    expect(d.totals).toEqual({ physical: 2, perception: 3, reason: 5, will: 2 });
+    expect(d.bonus).toEqual({ physical: 0, perception: 1, reason: 1, will: 0 });
     expect(d.modSum.melee).toBe(1);
     expect(d.modSum.hp).toBe(9);
     expect(d.modSum.tp).toBe(13);
-    expect(d.combat.melee).toBe(2 + 3 + 1);   // 6
-    expect(d.combat.ranged).toBe(3 + 5 + 2);  // 10
-    expect(d.combat.psychic).toBe(5 + 2 + 2); // 9
-    expect(d.combat.action).toBe(2 + 2 + 1);  // 5
-    expect(d.hp).toBe((2 + 5) * 5 + 9);       // 7×5 + 9 = 44
-    expect(d.tp).toBe((3 + 2) * 5 + 13);      // 5×5 + 13 = 38
+    expect(d.combat.melee).toBe(0 + 1 + 1);   // 2
+    expect(d.combat.ranged).toBe(1 + 1 + 2);  // 4
+    expect(d.combat.psychic).toBe(1 + 0 + 2); // 3
+    expect(d.combat.action).toBe(0 + 0 + 1);  // 1
+    expect(d.hp).toBe((0 + 1) * 5 + 9);       // 1×5 + 9 = 14
+    expect(d.tp).toBe((1 + 0) * 5 + 13);      // 1×5 + 13 = 18
   });
 });

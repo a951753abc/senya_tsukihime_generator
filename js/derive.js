@@ -4,7 +4,7 @@
  * 千夜月姬權威公式（依 charcard.xlsx 角色卡工作表逆向）：
  *
  *   合計_X = base + mod1 + mod2 + mod3 + special
- *     其中 mod_i = class[i].baseAbility[X] × class[i].level（attrs.js 自動同步）
+ *     其中 mod_i = class[i].baseAbility[X]（attrs.js 自動同步，升級不重複加算）
  *
  *   能力紅利_X = ⌊合計_X / 3⌋   ←判定用
  *
