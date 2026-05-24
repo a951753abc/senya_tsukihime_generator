@@ -129,6 +129,19 @@ describe('deriveAll — 千夜月姬權威公式', () => {
     expect(deriveAll(richChar()).tp).toBe((1 + 2) * 5);
   });
 
+  test('HP/TP 目前值預設跟隨最大值，也可由 resources 手動指定', () => {
+    const c = richChar();
+    let d = deriveAll(c);
+    expect(d.hpCurrent).toBe(d.hp);
+    expect(d.tpCurrent).toBe(d.tp);
+
+    c.resources.hpCurrent = 7;
+    c.resources.tpCurrent = 3;
+    d = deriveAll(c);
+    expect(d.hpCurrent).toBe(7);
+    expect(d.tpCurrent).toBe(3);
+  });
+
   test('角色等級 < 5 時 HP 公式取 max(等級, 5)', () => {
     const c = richChar();
     c.classes = [{ id: 'og', level: 2, isPrimary: true }];
@@ -193,7 +206,7 @@ describe('deriveAll — 千夜月姬權威公式', () => {
   test('返回值含完整 keys', () => {
     const d = deriveAll(richChar());
     expect(Object.keys(d).sort()).toEqual(
-      ['bond', 'bonus', 'characterLevel', 'combat', 'defense', 'hp', 'modSum', 'tp', 'totals'].sort()
+      ['bond', 'bonus', 'characterLevel', 'combat', 'defense', 'hp', 'hpCurrent', 'modSum', 'tp', 'tpCurrent', 'totals'].sort()
     );
   });
 });

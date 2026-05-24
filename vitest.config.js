@@ -5,5 +5,6 @@ export default defineConfig({
     environment: 'jsdom',
     globals: false,
     include: ['tests/**/*.test.js'],
+    setupFiles: ['tests/setup-localstorage.js'],
   },
 });

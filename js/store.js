@@ -13,6 +13,19 @@ function emptyAbilityCell() {
   return { base: 0, mod1: 0, mod2: 0, mod3: 0, special: 0 };
 }
 
+function defaultResources() {
+  return {
+    hpCurrent: null,
+    tpCurrent: null,
+  };
+}
+
+function normalizeCard(card) {
+  if (!card || typeof card !== 'object') return card;
+  card.resources = { ...defaultResources(), ...(card.resources || {}) };
+  return card;
+}
+
 export function defaultCharacter() {
   const now = new Date().toISOString();
   const abilities = {};
@@ -42,6 +55,7 @@ export function defaultCharacter() {
       elements,
       elementsExtra: [],
     },
+    resources: defaultResources(),
     skills: {
       equipped: [],
       common: [],
@@ -77,6 +91,7 @@ function loadFromLS() {
     const parsed = JSON.parse(raw);
     if (parsed?.schemaVersion !== SCHEMA_VERSION) return emptyState();
     if (!Array.isArray(parsed.cards)) return emptyState();
+    parsed.cards = parsed.cards.map(normalizeCard);
     return parsed;
   } catch {
     return emptyState();

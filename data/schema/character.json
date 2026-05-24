@@ -122,6 +122,15 @@
       },
       "additionalProperties": false
     },
+    "resources": {
+      "type": "object",
+      "description": "本場跑團用 HP/TP 目前值；null 表示跟隨派生最大值。",
+      "properties": {
+        "hpCurrent": { "type": ["integer", "null"], "minimum": 0 },
+        "tpCurrent": { "type": ["integer", "null"], "minimum": 0 }
+      },
+      "additionalProperties": false
+    },
     "skills": {
       "type": "object",
       "properties": {

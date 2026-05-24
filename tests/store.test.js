@@ -59,6 +59,13 @@ describe('defaultCharacter shape', () => {
     expect(s.elementsExtra).toEqual([]);
   });
 
+  test('resources 預設 HP/TP 目前值跟隨最大值', () => {
+    expect(defaultCharacter().resources).toEqual({
+      hpCurrent: null,
+      tpCurrent: null,
+    });
+  });
+
   test('skills 三組空陣列', () => {
     expect(defaultCharacter().skills).toEqual({
       equipped: [], common: [], infiniteDestruction: []

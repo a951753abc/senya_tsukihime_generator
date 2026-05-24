@@ -65,8 +65,8 @@ export function toCcfolia(card, levelDataMap) {
   ].filter(p => p.value !== '');
 
   const status = [
-    { label: 'HP', value: d.hp, max: d.hp },
-    { label: 'TP', value: d.tp, max: d.tp },
+    { label: 'HP', value: d.hpCurrent, max: d.hp },
+    { label: 'TP', value: d.tpCurrent, max: d.tp },
     { label: '羈絆', value: d.bond.total, max: 100 },
   ];
 

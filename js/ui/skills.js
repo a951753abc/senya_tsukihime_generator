@@ -258,7 +258,9 @@ export async function mountSkills({ pickerEl, equippedEl, detailEl }, store) {
     </div>`;
   }
 
-  async function renderPicker() {
+  async function renderPicker({ preserveScroll = true } = {}) {
+    const previousList = pickerEl.querySelector('.skp-list');
+    const previousScrollTop = preserveScroll ? (previousList?.scrollTop || 0) : 0;
     const card = getActiveCard(store.getState());
     const all = await gatherAllSkills(card);
     const filtered = all.filter(s => passesFilter(s, card));
@@ -380,6 +382,9 @@ export async function mountSkills({ pickerEl, equippedEl, detailEl }, store) {
         inp.setSelectionRange(inp.value.length, inp.value.length);
       }
     }
+
+    const nextList = pickerEl.querySelector('.skp-list');
+    if (nextList) nextList.scrollTop = previousScrollTop;
   }
 
   // ---- Equipped-strip + sk-detail（保留 v3 行為） ----
@@ -449,8 +454,8 @@ export async function mountSkills({ pickerEl, equippedEl, detailEl }, store) {
     `;
   }
 
-  async function renderAll() {
-    await renderPicker();
+  async function renderAll(options = {}) {
+    await renderPicker(options);
     renderEquipped();
     renderDetail();
   }
@@ -606,12 +611,14 @@ export async function mountSkills({ pickerEl, equippedEl, detailEl }, store) {
   let lastActiveId = store.getState().activeCardId;
   store.subscribe(() => {
     const cur = store.getState().activeCardId;
+    let preserveScroll = true;
     if (cur !== lastActiveId) {
       lastActiveId = cur;
       highlightedKey = null;
       expanded.clear();
+      preserveScroll = false;
     }
-    renderAll();
+    renderAll({ preserveScroll });
   });
-  await renderAll();
+  await renderAll({ preserveScroll: false });
 }

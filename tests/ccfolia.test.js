@@ -24,6 +24,8 @@ describe('toCcfolia', () => {
     c.stats.abilities.physical = { base: 4, mod1: 2, mod2: 1, mod3: 0, special: 0 };
     c.stats.abilities.reason = { base: 5, mod1: 2, mod2: 0, mod3: 0, special: 1 };
     c.stats.abilities.will = { base: 4, mod1: 1, mod2: 1, mod3: 0, special: 0 };
+    c.resources.hpCurrent = 12;
+    c.resources.tpCurrent = 8;
     const out = toCcfolia(c);
     expect(out.data.name).toBe('久遠寺 透');
     const findParam = (label) => out.data.params.find(p => p.label === label)?.value;
@@ -31,8 +33,11 @@ describe('toCcfolia', () => {
     expect(findParam('理智')).toBe('8');
     expect(findParam('級別')).toBe('古神道LV4/魔術師LV2');
     const hp = out.data.status.find(s => s.label === 'HP');
-    expect(typeof hp.value).toBe('number');
-    expect(hp.max).toBe(hp.value);
+    const tp = out.data.status.find(s => s.label === 'TP');
+    expect(hp.value).toBe(12);
+    expect(typeof hp.max).toBe('number');
+    expect(tp.value).toBe(8);
+    expect(typeof tp.max).toBe('number');
     expect(out.data.commands).toContain('2d6');
     expect(out.data.commands).toContain('近戰');
   });

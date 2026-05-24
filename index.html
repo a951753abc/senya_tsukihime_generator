@@ -48,6 +48,27 @@
     .slot-add[disabled] { cursor: not-allowed; }
     /* tabs-list 用 display:contents 維持原本 flex layout */
     #tabs-list { display: contents; }
+    .vital-current {
+      margin-top: 8px;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 4px;
+      font-family: var(--f-mono);
+      font-size: 10px;
+      color: var(--ink-200);
+    }
+    .vital-current input {
+      width: 100%;
+      box-sizing: border-box;
+      background: var(--ink-800);
+      border: 1px solid var(--ink-500);
+      border-radius: var(--r-sm);
+      color: var(--ink-100);
+      font: inherit;
+      padding: 6px 7px;
+      outline: none;
+    }
+    .vital-current input:focus { border-color: var(--gold); }
   </style>
 </head>
 <body>
@@ -174,6 +195,7 @@
         <span class="max" data-d="hp-max"></span>
       </div>
       <div class="vital-bar"><i data-d="hp-bar" style="width:0%; background:linear-gradient(90deg,var(--shu),var(--gold))"></i></div>
+      <label class="vital-current">現在 HP<input type="number" min="0" data-resource-field="hpCurrent" placeholder="自動等於最大值"></label>
     </div>
     <div class="vital">
       <div class="vital-name"><span>TP — 集中</span><span class="formula">(紅利知+紅利意)×5 + mod.tp</span></div>
@@ -182,6 +204,7 @@
         <span class="max" data-d="tp-max"></span>
       </div>
       <div class="vital-bar"><i data-d="tp-bar" style="width:0%; background:linear-gradient(90deg,#2a3a52,#7faed4)"></i></div>
+      <label class="vital-current">現在 TP<input type="number" min="0" data-resource-field="tpCurrent" placeholder="自動等於最大值"></label>
     </div>
 
     <div class="combat-grid">

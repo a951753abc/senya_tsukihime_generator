@@ -156,7 +156,7 @@ export function toBBCode(card, levelDataMap) {
   const extras = (card.stats.elementsExtra || []).map(e => `${e.name} ${e.value}`).join('　');
   const elementsBody = elemsLine + (extras ? `\n例外：${extras}` : '');
 
-  const derivedBody = `[b]HP[/b] ${d.hp}　[b]TP[/b] ${d.tp}\n` +
+  const derivedBody = `[b]HP[/b] ${d.hpCurrent}/${d.hp}　[b]TP[/b] ${d.tpCurrent}/${d.tp}\n` +
     `近戰 ${d.combat.melee}　射擊 ${d.combat.ranged}　精神 ${d.combat.psychic}　行動 ${d.combat.action}\n` +
     `防禦點 ${d.defense}　羈絆 ${d.bond.total}（潔淨 ${d.bond.pure} / 瘋狂 ${d.bond.crazy}）`;
 

@@ -148,7 +148,7 @@ export function toMarkdown(card, levelDataMap) {
 
   const derivedSection = `
 ## 派生
-- HP **${d.hp}** ／ TP **${d.tp}**
+- HP **${d.hpCurrent} / ${d.hp}** ／ TP **${d.tpCurrent} / ${d.tp}**
 - 近戰 ${d.combat.melee} ／ 射擊 ${d.combat.ranged} ／ 精神 ${d.combat.psychic} ／ 行動 ${d.combat.action}
 - 防禦點 ${d.defense}
 - 羈絆值合計 ${d.bond.total}（潔淨 ${d.bond.pure}　·　瘋狂 ${d.bond.crazy}）`;

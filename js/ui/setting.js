@@ -17,7 +17,23 @@ export function mountSetting(rootEl, store) {
     </div>
   `).join('');
 
+  function autosizeTextarea(textarea) {
+    textarea.style.height = 'auto';
+    textarea.style.height = `${textarea.scrollHeight}px`;
+  }
+
+  function autosizeAll() {
+    rootEl.querySelectorAll('textarea').forEach(autosizeTextarea);
+  }
+
   bindFields(rootEl, store);
-  store.subscribe(state => applyFields(rootEl, getActiveCard(state)));
+  rootEl.addEventListener('input', e => {
+    if (e.target.matches('textarea')) autosizeTextarea(e.target);
+  });
+  store.subscribe(state => {
+    applyFields(rootEl, getActiveCard(state));
+    autosizeAll();
+  });
   applyFields(rootEl, getActiveCard(store.getState()));
+  autosizeAll();
 }

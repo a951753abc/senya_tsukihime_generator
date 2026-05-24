@@ -1737,6 +1737,7 @@ body {
   color: var(--paper-800);
   line-height: 1.6;
   resize: vertical;
+  overflow: hidden;
   outline: none;
 }
 

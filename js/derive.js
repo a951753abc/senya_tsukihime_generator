@@ -125,6 +125,8 @@ export function deriveAll(character, levelDataMap) {
 
   const defense = modSum.defense;
   const bond = deriveBond(character.relationships);
+  const hpCurrent = character.resources?.hpCurrent ?? hp;
+  const tpCurrent = character.resources?.tpCurrent ?? tp;
 
-  return { totals, bonus, characterLevel: lv, hp, tp, combat, defense, bond, modSum };
+  return { totals, bonus, characterLevel: lv, hp, tp, hpCurrent, tpCurrent, combat, defense, bond, modSum };
 }
