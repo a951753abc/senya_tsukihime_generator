@@ -22,6 +22,8 @@ function defaultResources() {
 
 function normalizeCard(card) {
   if (!card || typeof card !== 'object') return card;
+  card.stats ||= {};
+  if (typeof card.stats.abilityModsManual !== 'boolean') card.stats.abilityModsManual = false;
   card.resources = { ...defaultResources(), ...(card.resources || {}) };
   return card;
 }
@@ -52,6 +54,7 @@ export function defaultCharacter() {
     styles: [],
     stats: {
       abilities,
+      abilityModsManual: false,
       elements,
       elementsExtra: [],
     },

@@ -14,6 +14,7 @@
 | `classes[]` | 多重級別槽（最多 4，第一個 = 主） |
 | `styles[]` | 風格清單（連動分類／背反律／代償／獲得感情） |
 | `stats.abilities` | 4 屬性 × 5 欄分解（基礎/級1/級2/級3/特殊） |
+| `stats.abilityModsManual` | 級1～3 修正是否改由玩家手動維護 |
 | `stats.elements` | 五大屬性（地水火風空） |
 | `stats.elementsExtra[]` | 例外屬性（劇本／流派專用） |
 | `skills` | equipped / common / infiniteDestruction 三組 |

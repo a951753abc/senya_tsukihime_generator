@@ -38,12 +38,49 @@
     .stat-table input.cell-inp.auto:hover {
       background: rgba(200, 169, 106, .08);
     }
-    .stat-table-hint {
+    .stat-table input.cell-inp.auto.locked {
+      cursor: default;
+      opacity: .76;
+    }
+    .stat-table input.cell-inp.auto.locked:focus {
+      background: transparent;
+      border-bottom: 1px dashed var(--gold);
+    }
+    .stat-table-bar {
       margin: var(--s-3) 0 var(--s-2);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--s-3);
+      flex-wrap: wrap;
+    }
+    .stat-table-hint {
       font-family: var(--f-mono); font-size: 10px;
       color: var(--paper-700); letter-spacing: .05em; line-height: 1.5;
     }
     .stat-table-hint b { color: var(--paper-900); font-weight: 700; letter-spacing: .1em; }
+    .stat-mode-toggle {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 8px;
+      border: 1px solid var(--paper-300);
+      border-radius: var(--r-sm);
+      background: rgba(255, 255, 255, .35);
+      font-family: var(--f-mono);
+      font-size: 10px;
+      letter-spacing: .08em;
+      color: var(--paper-800);
+      cursor: pointer;
+      user-select: none;
+    }
+    .stat-mode-toggle:hover { border-color: var(--gold); }
+    .stat-mode-toggle input {
+      width: 13px;
+      height: 13px;
+      accent-color: var(--shu);
+      margin: 0;
+    }
     /* 級別槽 add 鈕 disabled */
     .slot-add[disabled] { cursor: not-allowed; }
     /* tabs-list 用 display:contents 維持原本 flex layout */
@@ -236,7 +273,7 @@
       </div>
       <div class="export-meta">
         資料保存於 localStorage · 不上傳<br>
-        Schema v2.0 · 35+24 tests pass
+        Schema v2.0 · 78 tests pass
       </div>
     </div>
   </aside>

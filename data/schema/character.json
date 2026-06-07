@@ -84,7 +84,7 @@
       "properties": {
         "abilities": {
           "type": "object",
-          "description": "4 屬性，每個 6 欄分解（基礎+級1+級2+級3+特殊=合計）。合計為派生，不入庫。",
+          "description": "4 屬性，每個 5 欄分解（基礎+級1+級2+級3+特殊=合計）。合計為派生，不入庫。",
           "required": ["physical", "perception", "reason", "will"],
           "properties": {
             "physical":   { "$ref": "#/$defs/abilityCell", "description": "體力 TAIRYOKU" },
@@ -93,6 +93,10 @@
             "will":       { "$ref": "#/$defs/abilityCell", "description": "意志 ISHI" }
           },
           "additionalProperties": false
+        },
+        "abilityModsManual": {
+          "type": "boolean",
+          "description": "true 時 stats.abilities 的 mod1/mod2/mod3 由玩家手動維護，不再自動跟隨 classes[].baseAbilities"
         },
         "elements": {
           "type": "object",

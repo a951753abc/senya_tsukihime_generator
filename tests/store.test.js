@@ -53,6 +53,10 @@ describe('defaultCharacter shape', () => {
     }
   });
 
+  test('級別能力修正預設自動同步', () => {
+    expect(defaultCharacter().stats.abilityModsManual).toBe(false);
+  });
+
   test('stats.elements 5 元素全 0 + extras 空陣列', () => {
     const s = defaultCharacter().stats;
     expect(s.elements).toEqual({ earth: 0, water: 0, fire: 0, wind: 0, void: 0 });
@@ -257,6 +261,19 @@ describe('createStore — LocalStorage persistence', () => {
     expect(s2.getState().cards).toHaveLength(1);
     expect(s2.getState().cards[0].meta.name).toBe('永続テスト');
     expect(s2.getState().activeCardId).toBe(id);
+  });
+
+  test('舊資料缺 abilityModsManual 時補成自動同步', () => {
+    const legacy = defaultCharacter();
+    delete legacy.stats.abilityModsManual;
+    localStorage.setItem(LS_KEY, JSON.stringify({
+      schemaVersion: SCHEMA_VERSION,
+      cards: [legacy],
+      activeCardId: legacy.id,
+    }));
+
+    const store = createStore();
+    expect(store.getState().cards[0].stats.abilityModsManual).toBe(false);
   });
 
   test('LS 損壞時 fallback 到空狀態', () => {

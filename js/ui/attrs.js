@@ -2,7 +2,7 @@
  *
  * 行為：
  * - base / special：玩家手填（6 欄表的兩個 input）
- * - mod1/mod2/mod3：自動從級別槽 1/2/3 的 baseAbilities 帶入；等級不會改變基礎能力
+ * - mod1/mod2/mod3：預設自動從級別槽 1/2/3 的 baseAbilities 帶入；也可切到手動保存玩家輸入
  * - 合計 = base + mod1 + mod2 + mod3 + special（即時刷新 slider/total/sum）
  */
 
@@ -24,6 +24,7 @@ const COLS = [
   ['mod3',    '級3修正'],
   ['special', '特殊'],
 ];
+const AUTO_MOD_KEYS = ['mod1', 'mod2', 'mod3'];
 
 function attrSliderHtml(key, name, yomi) {
   return `
@@ -51,10 +52,11 @@ function statTableRowHtml(key, name) {
     <tr>
       <td>${name}</td>
       ${COLS.map(([k]) => {
-        const isAuto = k === 'mod1' || k === 'mod2' || k === 'mod3';
+        const isAuto = AUTO_MOD_KEYS.includes(k);
         const cls = isAuto ? 'cell-inp auto' : 'cell-inp';
-        const title = isAuto ? `自動：跟隨級別槽 ${k.slice(-1)} 的基本能力` : '玩家自填';
-        return `<td><input type="number" class="${cls}" data-field="stats.abilities.${key}.${k}" title="${title}"></td>`;
+        const title = isAuto ? `級別槽 ${k.slice(-1)} 基本能力修正` : '玩家自填';
+        const autoAttr = isAuto ? ' data-auto-mod' : '';
+        return `<td><input type="number" class="${cls}" data-field="stats.abilities.${key}.${k}"${autoAttr} title="${title}"></td>`;
       }).join('')}
       <td class="sum" data-sum-cell="${key}">0</td>
     </tr>
@@ -75,15 +77,25 @@ export function abilityModFromClassBase(baseAbilities) {
   };
 }
 
+export function shouldSyncAbilityMods(card) {
+  return card?.stats?.abilityModsManual !== true;
+}
+
 export function mountAttrs(rootEl, store) {
   rootEl.innerHTML = `
     <div class="attrs">
       ${ABILITIES.map(([k, n, y]) => attrSliderHtml(k, n, y)).join('')}
     </div>
-    <div class="stat-table-hint">
-      <span>編輯：</span>
-      <b>基礎 / 特殊</b> 玩家自填　·
-      <b>級1～3 修正</b> 自動跟隨級別槽（改級別會重新同步）
+    <div class="stat-table-bar">
+      <div class="stat-table-hint">
+        <span>編輯：</span>
+        <b>基礎 / 特殊</b> 玩家自填　·
+        <b>級1～3 修正</b> <span data-mod-mode-label>自動跟隨級別槽</span>
+      </div>
+      <label class="stat-mode-toggle">
+        <input type="checkbox" data-action="toggle-ability-mods-manual">
+        <span>手動調整級別修正</span>
+      </label>
     </div>
     <table class="stat-table">
       <thead>
@@ -111,7 +123,9 @@ export function mountAttrs(rootEl, store) {
   }
 
   async function syncMods(card) {
+    if (!shouldSyncAbilityMods(card)) return;
     const slots = card.classes.slice(0, 3);  // 最多 mod3，4th slot 不影響屬性
+    const slotIds = slots.map(cls => cls?.id || '');
     // 千夜月姬規則：級別的基本能力只套用一次；升級只影響 modifierTable。
     const slotMods = await Promise.all(slots.map(async cls => {
       if (!cls?.id) return null;
@@ -120,12 +134,17 @@ export function mountAttrs(rootEl, store) {
     }));
     while (slotMods.length < 3) slotMods.push(null);
 
+    const fresh = getActiveCard(store.getState());
+    if (!fresh || fresh.id !== card.id || !shouldSyncAbilityMods(fresh)) return;
+    const freshSlotIds = fresh.classes.slice(0, 3).map(cls => cls?.id || '');
+    if (slotIds.join('\u0000') !== freshSlotIds.join('\u0000')) return;
+
     // 比對 store；若不同則同步級別基本能力到 mod1/2/3。
     let needsUpdate = false;
     for (let i = 0; i < 3; i++) {
       const expected = slotMods[i] || { physical: 0, perception: 0, reason: 0, will: 0 };
       for (const [k] of ABILITIES) {
-        if ((card.stats.abilities[k][`mod${i + 1}`] || 0) !== (expected[k] || 0)) {
+        if ((fresh.stats.abilities[k][`mod${i + 1}`] || 0) !== (expected[k] || 0)) {
           needsUpdate = true;
         }
       }
@@ -148,6 +167,16 @@ export function mountAttrs(rootEl, store) {
     syncMods(card);
 
     applyFields(rootEl, card);
+    const manualMods = !shouldSyncAbilityMods(card);
+    const toggle = rootEl.querySelector('[data-action="toggle-ability-mods-manual"]');
+    if (toggle && toggle !== document.activeElement) toggle.checked = manualMods;
+    const modeLabel = rootEl.querySelector('[data-mod-mode-label]');
+    if (modeLabel) modeLabel.textContent = manualMods ? '手動保存輸入值' : '自動跟隨級別槽';
+    rootEl.querySelectorAll('[data-auto-mod]').forEach(inp => {
+      inp.readOnly = !manualMods;
+      inp.classList.toggle('locked', !manualMods);
+      inp.title = manualMods ? '手動調整級別修正' : '自動跟隨級別槽；開啟手動後可編輯';
+    });
     for (const [k] of ABILITIES) {
       const cell = card.stats.abilities[k];
       const total = abilityTotal(cell);
@@ -173,6 +202,17 @@ export function mountAttrs(rootEl, store) {
       if (sumCell) sumCell.textContent = total;
     }
   }
+
+  rootEl.addEventListener('change', e => {
+    const t = e.target;
+    if (t.dataset?.action !== 'toggle-ability-mods-manual') return;
+    const id = store.getState().activeCardId;
+    if (!id) return;
+    store.updateCard(id, c => {
+      c.stats ||= {};
+      c.stats.abilityModsManual = t.checked;
+    });
+  });
 
   bindFields(rootEl, store);
   store.subscribe(update);
